@@ -32,6 +32,7 @@ cmake-build-debug/
 
 # Idea
 .idea/
+*.iml
 
 # Build
 build/
