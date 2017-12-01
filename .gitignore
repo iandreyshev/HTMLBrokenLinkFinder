@@ -30,6 +30,9 @@ cmake-build-debug/
 
 ## Plugin-specific files:
 
+# Idea
+.idea/
+
 # Build
 build/
 
