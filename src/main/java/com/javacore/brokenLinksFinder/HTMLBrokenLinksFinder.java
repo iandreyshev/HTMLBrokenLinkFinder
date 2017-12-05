@@ -26,7 +26,7 @@ public class HTMLBrokenLinksFinder {
                 .addFlag(REPORT_FILE_FLAG, REPORT_FILE_PATTERN)
                 .parse(args);
 
-        if (!parser.isSucces()) {
+        if (!parser.isSuccess()) {
             throw new IllegalArgumentException(parser.getErrorMessage());
         }
 

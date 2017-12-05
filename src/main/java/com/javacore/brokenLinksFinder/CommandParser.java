@@ -5,23 +5,18 @@ import java.util.regex.Pattern;
 
 public class CommandParser {
     private static final Pattern FLAG_REGEX = Pattern.compile("--[a-zA-Z]+");
-    private static final String FLAG_NOT_ASSIGN = "Flags not assigned";
+    private static final String FLAGS_NOT_ASSIGNED = "Flags not assigned";
     private static final String INVALID_FLAG_FORMAT = "Invalid flag format";
-    private static final String EMPTY_ARGS_ARRAY = "Arguments count less than one";
-    private static final String EXPECTED_FLAG = "Invalid argument '%s', flag expected";
+    private static final String EMPTY_ARGS_ARRAY = "Arguments array is empty";
+    private static final String FLAG_EXPECTED = "Invalid argument '%s', flag expected";
     private static final String INVALID_ARG_FOR_FLAG = "Invalid argument '%s' for flag '%s'";
     private static final String DUPLICATE_ARGS = "Duplicate flag is not allowed";
     private static final String ARGS_NOT_FOUND_FOR_FLAG = "Arguments for flag '%s' not found";
 
-    private HashMap<String, List<String>> flagArgs;
-    private HashMap<String, Pattern> flagRegex;
+    private HashMap<String, List<String>> flagArgs = new HashMap<>();
+    private HashMap<String, Pattern> flagRegex = new HashMap<>();
     private String errorMessage;
-    private boolean isSucces;
-
-    public CommandParser() {
-        flagArgs = new HashMap<>();
-        flagRegex = new HashMap<>();
-    }
+    private boolean isSuccess;
 
     public String getErrorMessage() {
         return errorMessage;
@@ -45,12 +40,12 @@ public class CommandParser {
 
     public CommandParser parse(final String[] args) throws IllegalStateException {
         if (flagArgs.isEmpty()) {
-            throw new IllegalStateException(FLAG_NOT_ASSIGN);
+            throw new IllegalStateException(FLAGS_NOT_ASSIGNED);
         }
 
         cleanup();
         errorMessage = EMPTY_ARGS_ARRAY;
-        isSucces = args.length > 0 && enterParse(args);
+        isSuccess = args.length > 0 && enterParse(args);
 
         return this;
     }
@@ -59,8 +54,8 @@ public class CommandParser {
         return flagArgs.getOrDefault(flag, new ArrayList<>());
     }
 
-    public boolean isSucces() {
-        return isSucces;
+    public boolean isSuccess() {
+        return isSuccess;
     }
 
     private boolean enterParse(final String[] args) {
@@ -71,7 +66,7 @@ public class CommandParser {
             final String flag = args[pos];
 
             if (!isFlag(flag)) {
-                errorMessage = String.format(EXPECTED_FLAG, flag);
+                errorMessage = String.format(FLAG_EXPECTED, flag);
                 return false;
             } else if (passedFlags.contains(flag)) {
                 errorMessage = DUPLICATE_ARGS;
