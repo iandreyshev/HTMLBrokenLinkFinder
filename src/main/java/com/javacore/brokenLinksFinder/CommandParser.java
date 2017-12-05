@@ -5,10 +5,18 @@ import java.util.regex.Pattern;
 
 public class CommandParser {
     private static final Pattern FLAG_REGEX = Pattern.compile("--[a-zA-Z]+");
+    private static final String FLAG_NOT_ASSIGN = "Flags not assigned";
+    private static final String INVALID_FLAG_FORMAT = "Invalid flag format";
+    private static final String EMPTY_ARGS_ARRAY = "Arguments count less than one";
+    private static final String EXPECTED_FLAG = "Invalid argument '%s', flag expected";
+    private static final String INVALID_ARG_FOR_FLAG = "Invalid argument '%s' for flag '%s'";
+    private static final String DUPLICATE_ARGS = "Duplicate flag is not allowed";
+    private static final String ARGS_NOT_FOUND_FOR_FLAG = "Arguments for flag '%s' not found";
 
     private HashMap<String, List<String>> flagArgs;
     private HashMap<String, Pattern> flagRegex;
     private String errorMessage;
+    private boolean isSucces;
 
     public CommandParser() {
         flagArgs = new HashMap<>();
@@ -21,7 +29,7 @@ public class CommandParser {
 
     public CommandParser addFlag(final String flag) throws IllegalArgumentException {
         if (!FLAG_REGEX.matcher(flag).matches()) {
-            throw new IllegalArgumentException("Invalid flag format");
+            throw new IllegalArgumentException(INVALID_FLAG_FORMAT);
         }
         flagArgs.put(flag, new ArrayList<>());
 
@@ -35,17 +43,24 @@ public class CommandParser {
         return this;
     }
 
-    public boolean parse(final String[] args) throws IllegalStateException {
+    public CommandParser parse(final String[] args) throws IllegalStateException {
         if (flagArgs.isEmpty()) {
-            throw new IllegalStateException("Flags not assigned");
+            throw new IllegalStateException(FLAG_NOT_ASSIGN);
         }
 
         cleanup();
-        return enterParse(args);
+        errorMessage = EMPTY_ARGS_ARRAY;
+        isSucces = args.length > 0 && enterParse(args);
+
+        return this;
     }
 
     public List<String> getArgsForFlag(final String flag) {
         return flagArgs.getOrDefault(flag, new ArrayList<>());
+    }
+
+    public boolean isSucces() {
+        return isSucces;
     }
 
     private boolean enterParse(final String[] args) {
@@ -56,10 +71,10 @@ public class CommandParser {
             final String flag = args[pos];
 
             if (!isFlag(flag)) {
-                errorMessage = "Invalid arguments: '" + flag + "' is not a flag";
+                errorMessage = String.format(EXPECTED_FLAG, flag);
                 return false;
             } else if (passedFlags.contains(flag)) {
-                errorMessage = "Duplicate flag is not allowed";
+                errorMessage = DUPLICATE_ARGS;
                 return false;
             }
 
@@ -72,15 +87,18 @@ public class CommandParser {
 
                 if (isFlag(arg)) {
                     break;
-                }
-
-                if (isRegexExist && !getRegex(flag).matcher(arg).matches()) {
-                    errorMessage = "Invalid argument format for '" + flag + "' flag";
+                } else if (isRegexExist && !getRegex(flag).matcher(arg).matches()) {
+                    errorMessage = String.format(INVALID_ARG_FOR_FLAG, arg, flag);
                     return false;
                 }
 
                 flagArgs.get(flag).add(arg);
                 ++pos;
+            }
+
+            if (flagArgs.get(flag).size() < 1) {
+                errorMessage = String.format(ARGS_NOT_FOUND_FOR_FLAG, flag);
+                return false;
             }
         }
 

@@ -4,7 +4,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.lang.reflect.Parameter;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -23,6 +22,13 @@ public class CommandParserTest {
     public void getResultsFromNotCompletedParser() {
         parser.addFlag(validFlagOne);
         Assert.assertEquals(parser.getArgsForFlag(validFlagOne).size(), 0);
+    }
+
+    @Test
+    public void parseEmptyArgsArray() {
+        String[] args = {};
+        parser.addFlag(validFlagOne).parse(args);
+        Assert.assertEquals(parser.isSucces(), true);
     }
 
     @Test
@@ -72,25 +78,25 @@ public class CommandParserTest {
     @Test
     public void failedToParseArgsWithDuplicateFlags() {
         final String[] args = {validFlagOne, "arg1", validFlagOne, "arg2" };
-        parser.addFlag(validFlagOne);
+        parser.addFlag(validFlagOne).parse(args);
 
-        Assert.assertEquals(parser.parse(args), false);
+        Assert.assertEquals(parser.isSucces(), false);
         Assert.assertEquals("Duplicate flag is not allowed", parser.getErrorMessage());
     }
 
     @Test
     public void failedToParseArgsWithWithPattern() {
         final String[] args = {validFlagOne, "valid1", "valid2", "invalid" };
-        parser.addFlag(validFlagOne, Pattern.compile("valid[0-9]"));
+        parser.addFlag(validFlagOne, Pattern.compile("valid[0-9]")).parse(args);
 
-        Assert.assertEquals(parser.parse(args), false);
+        Assert.assertEquals(parser.isSucces(), false);
     }
 
     @Test
     public void failedToParseArgsWithoutFirstFlag() {
         final String[] args = { "arg1", "arg2", "arg3" };
-        parser.addFlag(validFlagOne);
-        Assert.assertEquals(parser.parse(args), false);
+        parser.addFlag(validFlagOne).parse(args);
+        Assert.assertEquals(parser.isSucces(), false);
     }
 
     @Test (expected = IllegalArgumentException.class)

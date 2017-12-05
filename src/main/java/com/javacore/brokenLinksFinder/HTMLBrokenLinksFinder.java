@@ -23,13 +23,20 @@ public class HTMLBrokenLinksFinder {
     private static void readCommandLine(final String[] args) {
         CommandParser parser = new CommandParser()
                 .addFlag(HTML_FILES_FLAG, HTML_FILE_PATTERN)
-                .addFlag(REPORT_FILE_FLAG, REPORT_FILE_PATTERN);
+                .addFlag(REPORT_FILE_FLAG, REPORT_FILE_PATTERN)
+                .parse(args);
 
-        if (!parser.parse(args)) {
+        if (!parser.isSucces()) {
             throw new IllegalArgumentException(parser.getErrorMessage());
         }
 
         filesToParse = parser.getArgsForFlag(HTML_FILES_FLAG);
         reportFile = parser.getArgsForFlag(REPORT_FILE_FLAG).get(0);
+
+        for (String value : filesToParse) {
+            System.out.println(value);
+        }
+
+        System.out.println(reportFile);
     }
 }
