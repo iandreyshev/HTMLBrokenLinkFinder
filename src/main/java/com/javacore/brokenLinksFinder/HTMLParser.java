@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 final class HTMLParser {
-    static List<String> getValues(final String html, Attribute attribute) {
+    static List<String> getValues(final String html, final Attribute attribute) {
         List<String> result = new ArrayList<>();
 
         if (html == null) {
@@ -17,7 +17,7 @@ final class HTMLParser {
 
         Document doc = Jsoup.parse(html);
 
-        for (Element node : doc.getElementsByAttribute(attribute.toString())) {
+        for (final Element node : doc.getElementsByAttribute(attribute.toString())) {
             result.add(node.attr(attribute.toString()));
         }
 

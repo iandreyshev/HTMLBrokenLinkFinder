@@ -21,24 +21,23 @@ public class CommandParserTest {
     @Test
     public void getResultsFromNotCompletedParser() {
         parser.addFlag(validFlagOne);
-        assertEquals(parser.getArgsForFlag(validFlagOne).size(), 0);
+        assertTrue(parser.getArgsForFlag(validFlagOne).isEmpty());
     }
 
     @Test
     public void parseEmptyArgsArray() {
         String[] args = {};
         parser.addFlag(validFlagOne).parse(args);
-        assertEquals(parser.isSuccess(), false);
+
+        assertFalse(parser.isSuccess());
     }
 
     @Test
     public void getResultForCompleteParserWithOneFlagAndZeroArgs() {
         final String[] args = {validFlagOne};
-        parser.addFlag(validFlagOne);
-        parser.parse(args);
+        parser.addFlag(validFlagOne).parse(args);
 
-        final List<String> result = parser.getArgsForFlag(validFlagOne);
-        assertEquals(result.size(), 0);
+        assertTrue(parser.getArgsForFlag(validFlagOne).isEmpty());
     }
 
     @Test
@@ -46,10 +45,9 @@ public class CommandParserTest {
         final String firstArg = "arg1";
         final String secondArg = "arg2";
         final String[] args = {validFlagOne, firstArg, secondArg };
-        parser.addFlag(validFlagOne);
-        parser.parse(args);
-
+        parser.addFlag(validFlagOne).parse(args);
         final List<String> result = parser.getArgsForFlag(validFlagOne);
+
         assertEquals(result.size(), 2);
         assertEquals(result.get(0), firstArg);
         assertEquals(result.get(1), secondArg);
@@ -60,11 +58,9 @@ public class CommandParserTest {
         final String firstArg = "arg1";
         final String secondArg = "arg2";
         final String[] args = {validFlagOne, firstArg, secondArg, validFlagTwo, secondArg, firstArg };
-        parser.addFlag(validFlagOne).addFlag(validFlagTwo);
-        parser.parse(args);
-
+        parser.addFlag(validFlagOne).addFlag(validFlagTwo).parse(args);
         List<String> result = parser.getArgsForFlag(validFlagOne);
-        System.out.println(result.size());
+
         assertEquals(result.size(), 2);
         assertEquals(result.get(0), firstArg);
         assertEquals(result.get(1), secondArg);
@@ -80,7 +76,7 @@ public class CommandParserTest {
         final String[] args = {validFlagOne, "arg1", validFlagOne, "arg2" };
         parser.addFlag(validFlagOne).parse(args);
 
-        assertEquals(parser.isSuccess(), false);
+        assertFalse(parser.isSuccess());
         assertEquals("Duplicate flag is not allowed", parser.getErrorMessage());
     }
 
@@ -89,14 +85,15 @@ public class CommandParserTest {
         final String[] args = {validFlagOne, "valid1", "valid2", "invalid" };
         parser.addFlag(validFlagOne, Pattern.compile("valid[0-9]")).parse(args);
 
-        assertEquals(parser.isSuccess(), false);
+        assertFalse(parser.isSuccess());
     }
 
     @Test
     public void failedToParseArgsWithoutFirstFlag() {
         final String[] args = { "arg1", "arg2", "arg3" };
         parser.addFlag(validFlagOne).parse(args);
-        assertEquals(parser.isSuccess(), false);
+
+        assertFalse(parser.isSuccess());
     }
 
     @Test (expected = IllegalArgumentException.class)
@@ -107,6 +104,7 @@ public class CommandParserTest {
     @Test (expected = IllegalStateException.class)
     public void catchExceptionIfParseWithoutAssignedFlags() {
         final String[] args = {validFlagOne, "arg1" };
+
         parser.parse(args);
     }
 }
