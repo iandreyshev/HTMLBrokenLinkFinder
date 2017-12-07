@@ -3,7 +3,7 @@ package com.javacore.brokenLinksFinder;
 import java.util.*;
 import java.util.regex.Pattern;
 
-public class CommandParser {
+class CommandParser {
     private static final Pattern FLAG_REGEX = Pattern.compile("--[a-zA-Z]+");
     private static final String FLAGS_NOT_ASSIGNED = "Flags not assigned";
     private static final String INVALID_FLAG_FORMAT = "Invalid flag format";
@@ -18,11 +18,11 @@ public class CommandParser {
     private String errorMessage;
     private boolean isSuccess;
 
-    public String getErrorMessage() {
+    String getErrorMessage() {
         return errorMessage;
     }
 
-    public CommandParser addFlag(final String flag) throws IllegalArgumentException {
+    CommandParser addFlag(final String flag) throws IllegalArgumentException {
         if (!FLAG_REGEX.matcher(flag).matches()) {
             throw new IllegalArgumentException(INVALID_FLAG_FORMAT);
         }
@@ -31,14 +31,14 @@ public class CommandParser {
         return this;
     }
 
-    public CommandParser addFlag(final String flag, Pattern argsRegex) throws IllegalArgumentException {
+    CommandParser addFlag(final String flag, Pattern argsRegex) throws IllegalArgumentException {
         addFlag(flag);
         flagRegex.put(flag, argsRegex);
 
         return this;
     }
 
-    public CommandParser parse(final String[] args) throws IllegalStateException {
+    CommandParser parse(final String[] args) throws IllegalStateException {
         if (flagArgs.isEmpty()) {
             throw new IllegalStateException(FLAGS_NOT_ASSIGNED);
         }
@@ -50,11 +50,11 @@ public class CommandParser {
         return this;
     }
 
-    public List<String> getArgsForFlag(final String flag) {
+    List<String> getArgsForFlag(final String flag) {
         return flagArgs.getOrDefault(flag, new ArrayList<>());
     }
 
-    public boolean isSuccess() {
+    boolean isSuccess() {
         return isSuccess;
     }
 
