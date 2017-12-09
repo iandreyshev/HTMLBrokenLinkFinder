@@ -1,16 +1,16 @@
 package com.javacore.brokenLinksFinder;
 
-import javafx.util.Pair;
-
-import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.InputStream;
+import javax.xml.ws.Service;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.regex.Pattern;
 
 public class HTMLBrokenLinksFinder {
@@ -21,9 +21,12 @@ public class HTMLBrokenLinksFinder {
     private static final Pattern HTML_FILE_PATTERN = Pattern.compile("(.+)[.](html)$");
     private static final Pattern REPORT_FILE_PATTERN = Pattern.compile("(.+)[.](csv)$");
     private static final int MIN_THREADS_COUNT = 1;
+    private static final HTMLParser.Attribute[] LINK_ATTRIBUTES = { HTMLParser.Attribute.HREF, HTMLParser.Attribute.SRC };
 
     private static HashMap<String, List<String>> fileLinks = new HashMap<>();
     private static HashSet<String> filesToParse = new HashSet<>();
+    private static List<CheckCodeCall> calls = new ArrayList<>();
+    private static List<Future<LinksCodeContainer>> callsResult;
     private static String reportFile;
     private static int threadsCount;
 
@@ -31,7 +34,7 @@ public class HTMLBrokenLinksFinder {
         try {
             readPropertiesFile();
             readCommandLine(args);
-            collectLinks();
+            prepareCalls();
             enterProcess();
             writeReport();
         } catch (Exception e) {
@@ -70,19 +73,12 @@ public class HTMLBrokenLinksFinder {
         reportFile = parser.getArgsForFlag(REPORT_FILE_FLAG).get(0);
     }
 
-    private static void collectLinks() {
+    private static void prepareCalls() {
         for (final String file : filesToParse) {
-            StringBuilder builder = new StringBuilder();
-
-            try (FileReader input = new FileReader(file)) {
-                int ch = 0;
-
-                while ((ch = input.read()) != -1) {
-                    builder.append(ch);
-                }
-
-                List<String> links = HTMLParser.getValues(builder.toString(), HTMLParser.Attribute.SRC);
-                fileLinks.put(file, links);
+            try {
+                final String html = new String(Files.readAllBytes(Paths.get(file)));
+                final List<String> links = HTMLParser.getValues(html, LINK_ATTRIBUTES);
+                calls.add(new CheckCodeCall(file, links));
             } catch (Exception ex) {
                 // TODO: Error log
             }
@@ -90,10 +86,15 @@ public class HTMLBrokenLinksFinder {
     }
 
     private static void enterProcess() {
-        ExecutorService service = Executors.newFixedThreadPool(threadsCount);
+        try {
+            final ExecutorService service = Executors.newFixedThreadPool(threadsCount);
+            callsResult = service.invokeAll(calls);
+        } catch (InterruptedException ex) {
+            // TODO: Error log
+        }
     }
 
     private static void writeReport() {
-
+        // TODO: Report log
     }
 }
