@@ -8,17 +8,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 final class HTMLParser {
-    static List<String> getValues(final String html, final Attribute attribute) {
+    static List<String> getValues(final String html, final Attribute... attributes) {
         List<String> result = new ArrayList<>();
 
         if (html == null) {
             return result;
         }
 
-        Document doc = Jsoup.parse(html);
+        for (Attribute attr : attributes) {
 
-        for (final Element node : doc.getElementsByAttribute(attribute.toString())) {
-            result.add(node.attr(attribute.toString()));
+            Document doc = Jsoup.parse(html);
+
+            for (final Element node : doc.getElementsByAttribute(attributes.toString())) {
+                result.add(node.attr(attributes.toString()));
+            }
         }
 
         return result;

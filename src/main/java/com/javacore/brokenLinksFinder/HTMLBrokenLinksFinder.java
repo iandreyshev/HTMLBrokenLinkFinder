@@ -2,6 +2,10 @@ package com.javacore.brokenLinksFinder;
 
 import javafx.util.Pair;
 
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.InputStream;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -18,6 +22,7 @@ public class HTMLBrokenLinksFinder {
     private static final Pattern REPORT_FILE_PATTERN = Pattern.compile("(.+)[.](csv)$");
     private static final int MIN_THREADS_COUNT = 1;
 
+    private static HashMap<String, List<String>> fileLinks = new HashMap<>();
     private static HashSet<String> filesToParse = new HashSet<>();
     private static String reportFile;
     private static int threadsCount;
@@ -26,6 +31,7 @@ public class HTMLBrokenLinksFinder {
         try {
             readPropertiesFile();
             readCommandLine(args);
+            collectLinks();
             enterProcess();
             writeReport();
         } catch (Exception e) {
@@ -62,6 +68,25 @@ public class HTMLBrokenLinksFinder {
 
         filesToParse.addAll(parser.getArgsForFlag(HTML_FILES_FLAG));
         reportFile = parser.getArgsForFlag(REPORT_FILE_FLAG).get(0);
+    }
+
+    private static void collectLinks() {
+        for (final String file : filesToParse) {
+            StringBuilder builder = new StringBuilder();
+
+            try (FileReader input = new FileReader(file)) {
+                int ch = 0;
+
+                while ((ch = input.read()) != -1) {
+                    builder.append(ch);
+                }
+
+                List<String> links = HTMLParser.getValues(builder.toString(), HTMLParser.Attribute.SRC);
+                fileLinks.put(file, links);
+            } catch (Exception ex) {
+                // TODO: Error log
+            }
+        }
     }
 
     private static void enterProcess() {
