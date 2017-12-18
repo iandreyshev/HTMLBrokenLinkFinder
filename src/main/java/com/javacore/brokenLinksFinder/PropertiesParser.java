@@ -4,7 +4,7 @@ import java.io.FileInputStream;
 import java.util.Properties;
 
 class PropertiesParser {
-    private Properties properties = new Properties();
+    private final Properties properties = new Properties();
 
     boolean load(final String file) {
         try {

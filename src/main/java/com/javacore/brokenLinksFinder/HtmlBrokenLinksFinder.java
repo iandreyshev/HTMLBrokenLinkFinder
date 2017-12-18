@@ -8,23 +8,23 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.regex.Pattern;
 
-public class HTMLBrokenLinksFinder {
+public class HtmlBrokenLinksFinder {
     private static final String HTML_FILES_FLAG = "--files";
     private static final String REPORT_FILE_FLAG = "--out";
     private static final String PROPERTIES_FILE = "properties.cfg";
     private static final String THREADS_COUNT_KEY = "threadsCount";
     private static final Pattern HTML_FILE_PATTERN = Pattern.compile("(.+)[.](html)$");
     private static final Pattern REPORT_FILE_PATTERN = Pattern.compile("(.+)[.](csv)$");
-    private static final int MIN_THREADS_COUNT = 10;
-    private static final HTMLParser.Attribute[] LINK_ATTRIBUTES = {
-            HTMLParser.Attribute.HREF,
-            HTMLParser.Attribute.SRC
+    private static final int MIN_THREADS_COUNT = 25;
+    private static final HtmlParser.Attribute[] LINK_ATTRIBUTES = {
+            HtmlParser.Attribute.HREF,
+            HtmlParser.Attribute.SRC
     };
 
     private static HashMap<String, List<String>> fileLinks = new HashMap<>();
-    private static HashSet<String> filesToParse = new HashSet<>();
-    private static List<CheckCodeCall> calls = new ArrayList<>();
-    private static List<Future<LinksCodeContainer>> callsResult;
+    private static final HashSet<String> filesToParse = new HashSet<>();
+    private static final List<HttpCodeCall> calls = new ArrayList<>();
+    private static List<Future<HttpCodeContainer>> callsResult;
     private static String reportFile;
     private static int threadsCount;
 
@@ -76,10 +76,10 @@ public class HTMLBrokenLinksFinder {
         for (final String file : filesToParse) {
             try {
                 final String html = new String(Files.readAllBytes(Paths.get(file)));
-                final List<String> links = HTMLParser.getValues(html, LINK_ATTRIBUTES);
-                calls.add(new CheckCodeCall(file, links));
+                final List<String> links = HtmlParser.getValues(html, LINK_ATTRIBUTES);
+                calls.add(new HttpCodeCall(file, links));
                 System.out.printf(
-                        "Found %s links in file '%s'",
+                        "Found %s links in file '%s'\n",
                         links.size(),
                         file
                 );
@@ -103,9 +103,9 @@ public class HTMLBrokenLinksFinder {
 
     private static void writeReport() {
         try {
-            for (final Future<LinksCodeContainer> containerFuture : callsResult) {
-                final LinksCodeContainer container = containerFuture.get();
-                System.out.printf(container.getFilename());
+            for (final Future<HttpCodeContainer> containerFuture : callsResult) {
+                final HttpCodeContainer container = containerFuture.get();
+                System.out.println(container.getFilename());
 
                 for(final Map.Entry<String, Integer> urlState : container.getCodes().entrySet()) {
                     System.out.printf(

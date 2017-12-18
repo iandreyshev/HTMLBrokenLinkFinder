@@ -17,14 +17,14 @@ public class HTMLParserTest {
 
     @Test
     public void parserWorkWithNullString() {
-        list = HTMLParser.getValues(null, HTMLParser.Attribute.SRC);
+        list = HtmlParser.getValues(null, HtmlParser.Attribute.SRC);
         assertEquals(list.size(), 0);
     }
 
     @Test
     public void parserWorkWithEmptyString() {
         final String html = "";
-        list = HTMLParser.getValues(html, HTMLParser.Attribute.SRC);
+        list = HtmlParser.getValues(html, HtmlParser.Attribute.SRC);
 
         assertEquals(list.size(), 0);
     }
@@ -32,7 +32,7 @@ public class HTMLParserTest {
     @Test
     public void getValueSrcFromHtml() {
         final String html = "<div><img src=\"value\" /></div>";
-        list = HTMLParser.getValues(html, HTMLParser.Attribute.SRC);
+        list = HtmlParser.getValues(html, HtmlParser.Attribute.SRC);
 
         assertEquals(list.size(), 1);
         assertEquals(list.get(0), "value");
@@ -41,7 +41,7 @@ public class HTMLParserTest {
     @Test
     public void getValueHrefFromHtml() {
         final String html = "<div><img href=\"value\" /></div>";
-        list = HTMLParser.getValues(html, HTMLParser.Attribute.HREF);
+        list = HtmlParser.getValues(html, HtmlParser.Attribute.HREF);
 
         assertEquals(list.size(), 1);
         assertEquals(list.get(0), "value");
@@ -50,7 +50,7 @@ public class HTMLParserTest {
     @Test
     public void parserDoesNotGetAttributesFromComments() {
         final String html = "<div><!--<img href=\"value\" />--></div>";
-        list = HTMLParser.getValues(html, HTMLParser.Attribute.HREF);
+        list = HtmlParser.getValues(html, HtmlParser.Attribute.HREF);
 
         assertEquals(list.size(), 0);
     }

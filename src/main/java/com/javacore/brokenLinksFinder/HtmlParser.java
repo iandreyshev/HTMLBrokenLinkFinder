@@ -8,16 +8,16 @@ import org.jsoup.select.Elements;
 import java.util.ArrayList;
 import java.util.List;
 
-final class HTMLParser {
+final class HtmlParser {
     static List<String> getValues(final String html, final Attribute... attributes) {
-        List<String> result = new ArrayList<>();
+        final List<String> result = new ArrayList<>();
 
         if (html == null) {
             return result;
         }
 
         for (final Attribute attribute : attributes) {
-            Document doc = Jsoup.parse(html);
+            final Document doc = Jsoup.parse(html);
             final Elements nodes = doc.getElementsByAttribute(attribute.toString());
 
             for (final Element node : nodes) {

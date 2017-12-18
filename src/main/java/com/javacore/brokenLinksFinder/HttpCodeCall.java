@@ -3,17 +3,17 @@ package com.javacore.brokenLinksFinder;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-class CheckCodeCall implements Callable<LinksCodeContainer> {
-    private LinksCodeContainer container;
-    private List<String> links;
+class HttpCodeCall implements Callable<HttpCodeContainer> {
+    private final HttpCodeContainer container;
+    private final List<String> links;
 
-    CheckCodeCall(final String filename, final List<String> links) {
-        container = new LinksCodeContainer(filename);
+    HttpCodeCall(final String filename, final List<String> links) {
+        container = new HttpCodeContainer(filename);
         this.links = links;
     }
 
     @Override
-    public LinksCodeContainer call() throws Exception {
+    public HttpCodeContainer call() throws Exception {
         for (final String url : links) {
             final int code = new HttpCodeHandler.Builder()
                     .setInvalidUrlCode(0)
@@ -21,6 +21,7 @@ class CheckCodeCall implements Callable<LinksCodeContainer> {
                     .build()
                     .getCode(url);
 
+            System.out.printf("Take code from '%s' file link\n", container.getFilename());
             container.add(url, code);
         }
 

@@ -13,8 +13,8 @@ class CommandParser {
     private static final String DUPLICATE_ARGS = "Duplicate flag is not allowed";
     private static final String ARGS_NOT_FOUND_FOR_FLAG = "Arguments for flag '%s' not found";
 
-    private HashMap<String, List<String>> flagArgs = new HashMap<>();
-    private HashMap<String, Pattern> flagRegex = new HashMap<>();
+    private final HashMap<String, List<String>> flagArgs = new HashMap<>();
+    private final HashMap<String, Pattern> flagRegex = new HashMap<>();
     private String errorMessage;
     private boolean isSuccess;
 
