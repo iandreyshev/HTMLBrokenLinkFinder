@@ -3,22 +3,27 @@ package com.javacore.brokenLinksFinder;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
 import java.util.List;
 
-final class HTMLParser {
-    static List<String> getValues(final String html, final Attribute attribute) {
-        List<String> result = new ArrayList<>();
+final class HtmlParser {
+    static List<String> getValues(final String html, final Attribute... attributes) {
+        final List<String> result = new ArrayList<>();
 
         if (html == null) {
             return result;
         }
 
-        Document doc = Jsoup.parse(html);
+        for (final Attribute attribute : attributes) {
+            final Document doc = Jsoup.parse(html);
+            final Elements nodes = doc.getElementsByAttribute(attribute.toString());
 
-        for (final Element node : doc.getElementsByAttribute(attribute.toString())) {
-            result.add(node.attr(attribute.toString()));
+            for (final Element node : nodes) {
+                final String value = node.attr(attribute.toString());
+                result.add(value);
+            }
         }
 
         return result;
