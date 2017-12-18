@@ -1,5 +1,6 @@
 package com.javacore.brokenLinksFinder;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -15,7 +16,7 @@ public class HtmlBrokenLinksFinder {
     private static final String THREADS_COUNT_KEY = "threadsCount";
     private static final Pattern HTML_FILE_PATTERN = Pattern.compile("(.+)[.](html)$");
     private static final Pattern REPORT_FILE_PATTERN = Pattern.compile("(.+)[.](csv)$");
-    private static final int MIN_THREADS_COUNT = 25;
+    private static final Integer MIN_THREADS_COUNT = 25;
     private static final HtmlParser.Attribute[] LINK_ATTRIBUTES = {
             HtmlParser.Attribute.HREF,
             HtmlParser.Attribute.SRC
@@ -26,7 +27,7 @@ public class HtmlBrokenLinksFinder {
     private static final List<HttpCodeCall> calls = new ArrayList<>();
     private static List<Future<HttpCodeContainer>> callsResult;
     private static String reportFile;
-    private static int threadsCount;
+    private static Integer threadsCount;
 
     public static void main(String[] args) {
         try {
@@ -35,24 +36,15 @@ public class HtmlBrokenLinksFinder {
             prepareCalls();
             enterProcess();
             writeReport();
-        } catch (Exception e) {
+        } catch (IOException e) {
             System.out.println(e.getMessage());
         }
     }
 
-    private static void readPropertiesFile() {
-        final PropertiesParser parser = new PropertiesParser();
-
-        if (parser.load(PROPERTIES_FILE) || parser.isContainsKey(THREADS_COUNT_KEY)) {
-            threadsCount = MIN_THREADS_COUNT;
-
-            return;
-        }
-
-        try {
-            final int count = Integer.parseInt(parser.get(THREADS_COUNT_KEY));
-            threadsCount = Integer.max(count, MIN_THREADS_COUNT);
-        } catch (Exception ex) {
+    private static void readPropertiesFile() throws IOException {
+        final PropertiesHelper parser = new PropertiesHelper(PROPERTIES_FILE);
+        threadsCount = parser.getInteger(THREADS_COUNT_KEY);
+        if (threadsCount == null) {
             threadsCount = MIN_THREADS_COUNT;
         }
     }
