@@ -1,0 +1,674 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru-RU">
+
+<head profile="http://gmpg.org/xfn/11">
+	<title>Распараллеливание задач в Java через InvokeAll |  Блог Java программиста</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+	<meta property="fb:admins" content="1235040662"/>	
+        <meta property="fb:app_id" content="194330504031963"/>
+		<link type="text/css" href="http://programador.ru/wp-content/themes/precious/css/global.css" media="screen" rel="stylesheet" />
+	<link type="text/css" href="http://programador.ru/wp-content/themes/precious/style.css" media="screen" rel="stylesheet" />
+	<!--[if lte IE 7]><link type="text/css" href="http://programador.ru/wp-content/themes/precious/style-ie.css" media="screen" rel="stylesheet" /><![endif]-->
+	<link type="text/css" href="http://programador.ru/wp-content/themes/precious/css/print.css" media="print" rel="stylesheet" />
+			<link rel='shortcut icon' type='image/x-icon' href='http://programador.ru/wp-content/themes/precious/gfx/favicon.ico' />
+	<link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://programador.ru/feed/" />
+	<link rel="alternate" type="text/xml" title="RSS .92" href="http://programador.ru/feed/rss/" />
+	<link rel="alternate" type="application/atom+xml" title="Atom 0.3" href="http://programador.ru/feed/atom/" />
+		<link rel='dns-prefetch' href='//s.w.org' />
+		<script type="text/javascript">
+			window._wpemojiSettings = {"baseUrl":"https:\/\/s.w.org\/images\/core\/emoji\/2.3\/72x72\/","ext":".png","svgUrl":"https:\/\/s.w.org\/images\/core\/emoji\/2.3\/svg\/","svgExt":".svg","source":{"concatemoji":"http:\/\/programador.ru\/wp-includes\/js\/wp-emoji-release.min.js?ver=4.8"}};
+			!function(a,b,c){function d(a){var b,c,d,e,f=String.fromCharCode;if(!k||!k.fillText)return!1;switch(k.clearRect(0,0,j.width,j.height),k.textBaseline="top",k.font="600 32px Arial",a){case"flag":return k.fillText(f(55356,56826,55356,56819),0,0),b=j.toDataURL(),k.clearRect(0,0,j.width,j.height),k.fillText(f(55356,56826,8203,55356,56819),0,0),c=j.toDataURL(),b===c&&(k.clearRect(0,0,j.width,j.height),k.fillText(f(55356,57332,56128,56423,56128,56418,56128,56421,56128,56430,56128,56423,56128,56447),0,0),b=j.toDataURL(),k.clearRect(0,0,j.width,j.height),k.fillText(f(55356,57332,8203,56128,56423,8203,56128,56418,8203,56128,56421,8203,56128,56430,8203,56128,56423,8203,56128,56447),0,0),c=j.toDataURL(),b!==c);case"emoji4":return k.fillText(f(55358,56794,8205,9794,65039),0,0),d=j.toDataURL(),k.clearRect(0,0,j.width,j.height),k.fillText(f(55358,56794,8203,9794,65039),0,0),e=j.toDataURL(),d!==e}return!1}function e(a){var c=b.createElement("script");c.src=a,c.defer=c.type="text/javascript",b.getElementsByTagName("head")[0].appendChild(c)}var f,g,h,i,j=b.createElement("canvas"),k=j.getContext&&j.getContext("2d");for(i=Array("flag","emoji4"),c.supports={everything:!0,everythingExceptFlag:!0},h=0;h<i.length;h++)c.supports[i[h]]=d(i[h]),c.supports.everything=c.supports.everything&&c.supports[i[h]],"flag"!==i[h]&&(c.supports.everythingExceptFlag=c.supports.everythingExceptFlag&&c.supports[i[h]]);c.supports.everythingExceptFlag=c.supports.everythingExceptFlag&&!c.supports.flag,c.DOMReady=!1,c.readyCallback=function(){c.DOMReady=!0},c.supports.everything||(g=function(){c.readyCallback()},b.addEventListener?(b.addEventListener("DOMContentLoaded",g,!1),a.addEventListener("load",g,!1)):(a.attachEvent("onload",g),b.attachEvent("onreadystatechange",function(){"complete"===b.readyState&&c.readyCallback()})),f=c.source||{},f.concatemoji?e(f.concatemoji):f.wpemoji&&f.twemoji&&(e(f.twemoji),e(f.wpemoji)))}(window,document,window._wpemojiSettings);
+		</script>
+		<style type="text/css">
+img.wp-smiley,
+img.emoji {
+	display: inline !important;
+	border: none !important;
+	box-shadow: none !important;
+	height: 1em !important;
+	width: 1em !important;
+	margin: 0 .07em !important;
+	vertical-align: -0.1em !important;
+	background: none !important;
+	padding: 0 !important;
+}
+</style>
+<link rel='stylesheet' id='wp-syntax-css-css'  href='http://programador.ru/wp-content/plugins/wp-syntax/css/wp-syntax.css?ver=1.1' type='text/css' media='all' />
+<script type='text/javascript' src='http://programador.ru/wp-includes/js/jquery/jquery.js?ver=1.12.4'></script>
+<script type='text/javascript' src='http://programador.ru/wp-includes/js/jquery/jquery-migrate.min.js?ver=1.4.1'></script>
+<link rel='https://api.w.org/' href='http://programador.ru/wp-json/' />
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://programador.ru/xmlrpc.php?rsd" />
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://programador.ru/wp-includes/wlwmanifest.xml" /> 
+<link rel='prev' title='DCE VM + HotSwap' href='http://programador.ru/dce-vm-and-hotswap/' />
+<link rel='next' title='Заметки по Derby DB' href='http://programador.ru/about-derby-db/' />
+<link rel="canonical" href="http://programador.ru/invokeall/" />
+<link rel='shortlink' href='http://programador.ru/?p=4314' />
+<link rel="alternate" type="application/json+oembed" href="http://programador.ru/wp-json/oembed/1.0/embed?url=http%3A%2F%2Fprogramador.ru%2Finvokeall%2F" />
+<link rel="alternate" type="text/xml+oembed" href="http://programador.ru/wp-json/oembed/1.0/embed?url=http%3A%2F%2Fprogramador.ru%2Finvokeall%2F&#038;format=xml" />
+	<link href='http://fonts.googleapis.com/css?family=Marck+Script&amp;subset=latin,cyrillic' rel='stylesheet' type='text/css' />  
+</head>
+<body id="top" class="post-template-default single single-post postid-4314 single-format-standard chrome">
+<!-- Yandex.Metrika counter --><script src="//mc.yandex.ru/metrika/watch.js" type="text/javascript"></script><div style="display:none;"><script type="text/javascript">try { var yaCounter4313647 = new Ya.Metrika({id:4313647, clickmap:true, trackLinks:true});} catch(e) { }</script></div><noscript><div><img src="//mc.yandex.ru/watch/4313647" style="position:absolute; left:-9999px;" alt="" /></div></noscript><!-- /Yandex.Metrika counter -->
+<div id="wrap"><div id="header">
+
+<div class="about">
+<h1 style="display:inline"><a accesskey="h" href="http://programador.ru">Блог Java программиста </a></h1> <div class="g-plusone" data-size="medium"></div>
+
+<p style="margin-top: -2px; padding-bottom: 12px;">Заметки о программировании на Java и Scala, а также про UML, Android и не только&#8230;	</p>
+<p class="author">@author: <a href="http://programador.ru/vcard">Виталий Лигай</a> (Java EE Architect/Android Developer)</p>
+<img class="logo" src="http://programador.ru/wp-content/uploads/2014/03/logo-3.png" alt="logo"/>
+</div>
+</div>
+<div id="content">
+
+	<div id="post-4314" class="post-4314 post type-post status-publish format-standard hentry category-java tag-java tag-3">
+
+		<h2 id="pagetitle"><a href="http://programador.ru/invokeall/" rel="bookmark">Распараллеливание задач в Java через InvokeAll</a></h2>
+	
+		 
+		<div class="postcontent">
+			<p>Одно время у меня были некоторые сомнения имеет ли смысл публиковать эту статью, т.к. в целом мне нечего сказать такого, что нельзя было найти в официальной документации об <a href="http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ExecutorService.html#invokeAll%28java.util.Collection%29">invokeAll</a>. Затем, при общении с другими программистами, стал время от времени замечать не совсем правильное (на мой взгляд) понимание его работы. Поэтому пока есть <a href="http://programador.ru/annonce/">свободное время</a> решил все-таки закончить эту заметку.</p>
+<p>Сразу хочу заметить, что мне не очень хочется углубляться в описание всей мощи java concurrent API, а просто расставить некоторые акценты при работе над небольшой простой задачей. Она может возникнуть в жизни каждого программиста, <em>он замечает некоторые независимые операции и у него появляется нестерпимое желание их распределить по нескольким потокам</em>. Грубо говоря, у вас есть какой-то метод, который можно было бы безболезненно запихнуть в Runnable-ы, стартануть и подождать когда все закончат свою работу. </p>
+<p>Понятно, что для этого может подойти <em>invokeAll</em> т.к. в описании про него явно сказано: "Executes the given tasks, returning a list of Futures holding their status and results when <strong>all complete</strong>."</p>
+<p>Так вот, некоторые программисты не дочитывают последние слова и думают, что нужно самому контролировать процесс, ждать и "жать на тормоз", проверять все ли потоки завершились, периодически дергать в цикле future.get(), join-ить или делать другие различные телодвижения. Конечно так поступают не все, но тем не менее такое бывает. Для того, чтобы разобраться в том, что происходит на самом деле, достаточно взглянуть в базовую реализацию этого метода (AbstractExecutorService.java). Надо же пользоваться тем, что src.zip в JDK все еще продолжают подкладывать: <span id="more-4314"></span></p>
+
+<div class="wp_syntax" style="position:relative;"><table><tr><td class="code"><pre class="java" style="font-family:monospace;">    <span style="color: #000000; font-weight: bold;">public</span> <span style="color: #339933;">&lt;</span>T<span style="color: #339933;">&gt;</span> List<span style="color: #339933;">&lt;</span>Future<span style="color: #339933;">&lt;</span>T<span style="color: #339933;">&gt;&gt;</span> invokeAll<span style="color: #009900;">&#40;</span>Collection<span style="color: #339933;">&lt;?</span> <span style="color: #000000; font-weight: bold;">extends</span> Callable<span style="color: #339933;">&lt;</span>T<span style="color: #339933;">&gt;&gt;</span> tasks<span style="color: #009900;">&#41;</span>
+        <span style="color: #000000; font-weight: bold;">throws</span> <span style="color: #003399;">InterruptedException</span> <span style="color: #009900;">&#123;</span>
+        <span style="color: #000000; font-weight: bold;">if</span> <span style="color: #009900;">&#40;</span>tasks <span style="color: #339933;">==</span> <span style="color: #000066; font-weight: bold;">null</span><span style="color: #009900;">&#41;</span>
+            <span style="color: #000000; font-weight: bold;">throw</span> <span style="color: #000000; font-weight: bold;">new</span> <span style="color: #003399;">NullPointerException</span><span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+        List<span style="color: #339933;">&lt;</span>Future<span style="color: #339933;">&lt;</span>T<span style="color: #339933;">&gt;&gt;</span> futures <span style="color: #339933;">=</span> <span style="color: #000000; font-weight: bold;">new</span> ArrayList<span style="color: #339933;">&lt;</span>Future<span style="color: #339933;">&lt;</span>T<span style="color: #339933;">&gt;&gt;</span><span style="color: #009900;">&#40;</span>tasks.<span style="color: #006633;">size</span><span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+        <span style="color: #000066; font-weight: bold;">boolean</span> done <span style="color: #339933;">=</span> <span style="color: #000066; font-weight: bold;">false</span><span style="color: #339933;">;</span>
+        <span style="color: #000000; font-weight: bold;">try</span> <span style="color: #009900;">&#123;</span>
+            <span style="color: #000000; font-weight: bold;">for</span> <span style="color: #009900;">&#40;</span>Callable<span style="color: #339933;">&lt;</span>T<span style="color: #339933;">&gt;</span> t <span style="color: #339933;">:</span> tasks<span style="color: #009900;">&#41;</span> <span style="color: #009900;">&#123;</span>
+                RunnableFuture<span style="color: #339933;">&lt;</span>T<span style="color: #339933;">&gt;</span> f <span style="color: #339933;">=</span> newTaskFor<span style="color: #009900;">&#40;</span>t<span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+                futures.<span style="color: #006633;">add</span><span style="color: #009900;">&#40;</span>f<span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+                execute<span style="color: #009900;">&#40;</span>f<span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+            <span style="color: #009900;">&#125;</span>
+            <span style="color: #000000; font-weight: bold;">for</span> <span style="color: #009900;">&#40;</span>Future<span style="color: #339933;">&lt;</span>T<span style="color: #339933;">&gt;</span> f <span style="color: #339933;">:</span> futures<span style="color: #009900;">&#41;</span> <span style="color: #009900;">&#123;</span>
+                <span style="color: #000000; font-weight: bold;">if</span> <span style="color: #009900;">&#40;</span><span style="color: #339933;">!</span>f.<span style="color: #006633;">isDone</span><span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span> <span style="color: #009900;">&#123;</span>
+                    <span style="color: #000000; font-weight: bold;">try</span> <span style="color: #009900;">&#123;</span>
+                        f.<span style="color: #006633;">get</span><span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+                    <span style="color: #009900;">&#125;</span> <span style="color: #000000; font-weight: bold;">catch</span> <span style="color: #009900;">&#40;</span>CancellationException ignore<span style="color: #009900;">&#41;</span> <span style="color: #009900;">&#123;</span>
+                    <span style="color: #009900;">&#125;</span> <span style="color: #000000; font-weight: bold;">catch</span> <span style="color: #009900;">&#40;</span>ExecutionException ignore<span style="color: #009900;">&#41;</span> <span style="color: #009900;">&#123;</span>
+                    <span style="color: #009900;">&#125;</span>
+                <span style="color: #009900;">&#125;</span>
+            <span style="color: #009900;">&#125;</span>
+            done <span style="color: #339933;">=</span> <span style="color: #000066; font-weight: bold;">true</span><span style="color: #339933;">;</span>
+            <span style="color: #000000; font-weight: bold;">return</span> futures<span style="color: #339933;">;</span>
+        <span style="color: #009900;">&#125;</span> <span style="color: #000000; font-weight: bold;">finally</span> <span style="color: #009900;">&#123;</span>
+            <span style="color: #000000; font-weight: bold;">if</span> <span style="color: #009900;">&#40;</span><span style="color: #339933;">!</span>done<span style="color: #009900;">&#41;</span>
+                <span style="color: #000000; font-weight: bold;">for</span> <span style="color: #009900;">&#40;</span>Future<span style="color: #339933;">&lt;</span>T<span style="color: #339933;">&gt;</span> f <span style="color: #339933;">:</span> futures<span style="color: #009900;">&#41;</span>
+                    f.<span style="color: #006633;">cancel</span><span style="color: #009900;">&#40;</span><span style="color: #000066; font-weight: bold;">true</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+        <span style="color: #009900;">&#125;</span>
+    <span style="color: #009900;">&#125;</span></pre></td></tr></table><p class="theCode" style="display:none;">    public &lt;T&gt; List&lt;Future&lt;T&gt;&gt; invokeAll(Collection&lt;? extends Callable&lt;T&gt;&gt; tasks)
+        throws InterruptedException {
+        if (tasks == null)
+            throw new NullPointerException();
+        List&lt;Future&lt;T&gt;&gt; futures = new ArrayList&lt;Future&lt;T&gt;&gt;(tasks.size());
+        boolean done = false;
+        try {
+            for (Callable&lt;T&gt; t : tasks) {
+                RunnableFuture&lt;T&gt; f = newTaskFor(t);
+                futures.add(f);
+                execute(f);
+            }
+            for (Future&lt;T&gt; f : futures) {
+                if (!f.isDone()) {
+                    try {
+                        f.get();
+                    } catch (CancellationException ignore) {
+                    } catch (ExecutionException ignore) {
+                    }
+                }
+            }
+            done = true;
+            return futures;
+        } finally {
+            if (!done)
+                for (Future&lt;T&gt; f : futures)
+                    f.cancel(true);
+        }
+    }</p></div>
+
+<p>Легко видеть, что действительно как сказано в документации:<br />
+во-первых будем так или иначе ждать пока не выполнятся все задачи (т.к. дергаем f.get)<br />
+во-вторых разработчики API <em>не слишком бережно относятся к обработке исключений</em> (о чем тоже сказано в документации). </p>
+<p>Суть метода &mdash; "притормозить" в текущей нитке, пока все задачи из коллекции которую мы передали не закончат свою работу или не рухнут (по крайней мере в базовой реализации этого метода).</p>
+<h2>Пример.</h2>
+<p>Откликаюсь на просьбу друзей приводить ссылки или финальный пример, который бы подводил бы некую черту и окончательно всё разъяснял. Сразу хотел обратить внимание на то, что приведенный исходный код может быть использован лишь в ознакомительных целях, в "боевых" задачах его использовать конечно же нельзя, но возможно пример исходного кода поможет как-то лучше понять происходящее. Еще раз, пожалуйста не используйте его "как есть" в своей работе.</p>
+<p>Допустим есть вымышленная задача.</p>
+<p>Дано:<br />
+<em>1. Массив URL-ов (String).<br />
+2. Пустая директория.</em><br />
+Задание:<br />
+<em>Скачать содержимое URL-ов и поместить его в файлы указанной директории. </em></p>
+<p>Решение:</p>
+
+<div class="wp_syntax" style="position:relative;"><table><tr><td class="code"><pre class="java" style="font-family:monospace;"><span style="color: #000000; font-weight: bold;">import</span> <span style="color: #006699;">java.io.IOException</span><span style="color: #339933;">;</span>
+<span style="color: #000000; font-weight: bold;">import</span> <span style="color: #006699;">java.io.InputStream</span><span style="color: #339933;">;</span>
+<span style="color: #000000; font-weight: bold;">import</span> <span style="color: #006699;">java.net.URI</span><span style="color: #339933;">;</span>
+<span style="color: #000000; font-weight: bold;">import</span> <span style="color: #006699;">java.nio.file.Files</span><span style="color: #339933;">;</span>
+<span style="color: #000000; font-weight: bold;">import</span> <span style="color: #006699;">java.nio.file.Path</span><span style="color: #339933;">;</span>
+<span style="color: #000000; font-weight: bold;">import</span> <span style="color: #006699;">java.nio.file.Paths</span><span style="color: #339933;">;</span>
+<span style="color: #000000; font-weight: bold;">import</span> <span style="color: #006699;">java.nio.file.StandardCopyOption</span><span style="color: #339933;">;</span>
+<span style="color: #000000; font-weight: bold;">import</span> <span style="color: #006699;">java.util.ArrayList</span><span style="color: #339933;">;</span>
+<span style="color: #000000; font-weight: bold;">import</span> <span style="color: #006699;">java.util.List</span><span style="color: #339933;">;</span>
+<span style="color: #000000; font-weight: bold;">import</span> <span style="color: #006699;">java.util.concurrent.Callable</span><span style="color: #339933;">;</span>
+<span style="color: #000000; font-weight: bold;">import</span> <span style="color: #006699;">java.util.concurrent.ExecutorService</span><span style="color: #339933;">;</span>
+<span style="color: #000000; font-weight: bold;">import</span> <span style="color: #006699;">java.util.concurrent.Executors</span><span style="color: #339933;">;</span>
+<span style="color: #000000; font-weight: bold;">import</span> <span style="color: #006699;">java.util.concurrent.Future</span><span style="color: #339933;">;</span>
+&nbsp;
+<span style="color: #000000; font-weight: bold;">public</span> <span style="color: #000000; font-weight: bold;">class</span> Main <span style="color: #009900;">&#123;</span>
+    <span style="color: #000000; font-weight: bold;">public</span> <span style="color: #000000; font-weight: bold;">static</span> <span style="color: #000066; font-weight: bold;">void</span> copy<span style="color: #009900;">&#40;</span><span style="color: #003399;">String</span><span style="color: #009900;">&#91;</span><span style="color: #009900;">&#93;</span> urls, Path dst<span style="color: #009900;">&#41;</span> <span style="color: #009900;">&#123;</span>
+        <span style="color: #000066; font-weight: bold;">int</span> THREADS <span style="color: #339933;">=</span> <span style="color: #cc66cc;">4</span><span style="color: #339933;">;</span> <span style="color: #666666; font-style: italic;">// кол-во потоков</span>
+        ExecutorService pool <span style="color: #339933;">=</span> Executors.<span style="color: #006633;">newFixedThreadPool</span><span style="color: #009900;">&#40;</span>THREADS<span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+        List<span style="color: #339933;">&lt;</span>Callable<span style="color: #339933;">&lt;</span>Object<span style="color: #339933;">&gt;&gt;</span> tasks <span style="color: #339933;">=</span> <span style="color: #000000; font-weight: bold;">new</span> ArrayList<span style="color: #339933;">&lt;&gt;</span><span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+        <span style="color: #000000; font-weight: bold;">try</span> <span style="color: #009900;">&#123;</span>
+            <span style="color: #000000; font-weight: bold;">for</span> <span style="color: #009900;">&#40;</span><span style="color: #000066; font-weight: bold;">int</span> i <span style="color: #339933;">=</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">;</span> i <span style="color: #339933;">&lt;</span> urls.<span style="color: #006633;">length</span><span style="color: #339933;">;</span> <span style="color: #339933;">++</span>i<span style="color: #009900;">&#41;</span> <span style="color: #009900;">&#123;</span>
+                <span style="color: #000000; font-weight: bold;">final</span> <span style="color: #003399;">String</span> url <span style="color: #339933;">=</span> urls<span style="color: #009900;">&#91;</span>i<span style="color: #009900;">&#93;</span><span style="color: #339933;">;</span>
+                <span style="color: #000000; font-weight: bold;">final</span> Path dstPath <span style="color: #339933;">=</span> dst.<span style="color: #006633;">resolve</span><span style="color: #009900;">&#40;</span>i <span style="color: #339933;">+</span> <span style="color: #0000ff;">&quot;.html&quot;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+                <span style="color: #666666; font-style: italic;">// добавляем задачки</span>
+                tasks.<span style="color: #006633;">add</span><span style="color: #009900;">&#40;</span><span style="color: #000000; font-weight: bold;">new</span> Callable<span style="color: #339933;">&lt;</span>Object<span style="color: #339933;">&gt;</span><span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span> <span style="color: #009900;">&#123;</span>
+                    <span style="color: #000000; font-weight: bold;">public</span> <span style="color: #003399;">Object</span> call<span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span> <span style="color: #000000; font-weight: bold;">throws</span> <span style="color: #003399;">Exception</span> <span style="color: #009900;">&#123;</span>
+                        download<span style="color: #009900;">&#40;</span>url, dstPath<span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+                        <span style="color: #000000; font-weight: bold;">return</span> <span style="color: #000066; font-weight: bold;">null</span><span style="color: #339933;">;</span>
+                    <span style="color: #009900;">&#125;</span>
+                <span style="color: #009900;">&#125;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+            <span style="color: #009900;">&#125;</span>
+            <span style="color: #666666; font-style: italic;">// Запускаем пул потоков и ДОЖИДАЕМСЯ! </span>
+            List<span style="color: #339933;">&lt;</span>Future<span style="color: #339933;">&lt;</span>Object<span style="color: #339933;">&gt;&gt;</span> invokeAll <span style="color: #339933;">=</span> pool.<span style="color: #006633;">invokeAll</span><span style="color: #009900;">&#40;</span>tasks<span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+        <span style="color: #009900;">&#125;</span> <span style="color: #000000; font-weight: bold;">catch</span> <span style="color: #009900;">&#40;</span><span style="color: #003399;">InterruptedException</span> e<span style="color: #009900;">&#41;</span> <span style="color: #009900;">&#123;</span>
+            e.<span style="color: #006633;">printStackTrace</span><span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span> <span style="color: #666666; font-style: italic;">// так лучше не делать в продакшене</span>
+        <span style="color: #009900;">&#125;</span> <span style="color: #000000; font-weight: bold;">finally</span> <span style="color: #009900;">&#123;</span>
+            pool.<span style="color: #006633;">shutdown</span><span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+        <span style="color: #009900;">&#125;</span>
+    <span style="color: #009900;">&#125;</span>
+    <span style="color: #666666; font-style: italic;">// копируем содержимое url в dst (и так тоже лучше не делать в продакшене)</span>
+    <span style="color: #000000; font-weight: bold;">private</span> <span style="color: #000000; font-weight: bold;">static</span> <span style="color: #000066; font-weight: bold;">long</span> download<span style="color: #009900;">&#40;</span><span style="color: #003399;">String</span> url, Path dst<span style="color: #009900;">&#41;</span> <span style="color: #009900;">&#123;</span>
+        <span style="color: #000000; font-weight: bold;">try</span> <span style="color: #009900;">&#123;</span>
+            URI u <span style="color: #339933;">=</span> URI.<span style="color: #006633;">create</span><span style="color: #009900;">&#40;</span>url<span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+            <span style="color: #000000; font-weight: bold;">try</span> <span style="color: #009900;">&#40;</span><span style="color: #003399;">InputStream</span> in <span style="color: #339933;">=</span> u.<span style="color: #006633;">toURL</span><span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span>.<span style="color: #006633;">openStream</span><span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span> <span style="color: #009900;">&#123;</span>
+                Files.<span style="color: #006633;">copy</span><span style="color: #009900;">&#40;</span>in, dst, StandardCopyOption.<span style="color: #006633;">REPLACE_EXISTING</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+            <span style="color: #009900;">&#125;</span>
+            <span style="color: #003399;">System</span>.<span style="color: #006633;">out</span>.<span style="color: #006633;">printf</span><span style="color: #009900;">&#40;</span><span style="color: #0000ff;">&quot;%s -&gt; %s %n&quot;</span>, url, dst<span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+            <span style="color: #000000; font-weight: bold;">return</span> dst.<span style="color: #006633;">toFile</span><span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span>.<span style="color: #006633;">length</span><span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+        <span style="color: #009900;">&#125;</span> <span style="color: #000000; font-weight: bold;">catch</span> <span style="color: #009900;">&#40;</span><span style="color: #003399;">IOException</span> e<span style="color: #009900;">&#41;</span> <span style="color: #009900;">&#123;</span>
+            e.<span style="color: #006633;">printStackTrace</span><span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+            <span style="color: #000000; font-weight: bold;">return</span> <span style="color: #339933;">-</span><span style="color: #cc66cc;">1</span><span style="color: #339933;">;</span>
+        <span style="color: #009900;">&#125;</span>
+    <span style="color: #009900;">&#125;</span>
+&nbsp;
+   <span style="color: #000000; font-weight: bold;">public</span> <span style="color: #000000; font-weight: bold;">static</span> <span style="color: #000066; font-weight: bold;">void</span> main<span style="color: #009900;">&#40;</span><span style="color: #003399;">String</span><span style="color: #009900;">&#91;</span><span style="color: #009900;">&#93;</span> args<span style="color: #009900;">&#41;</span> <span style="color: #000000; font-weight: bold;">throws</span> <span style="color: #003399;">Exception</span> <span style="color: #009900;">&#123;</span>
+        <span style="color: #003399;">String</span> urls<span style="color: #009900;">&#91;</span><span style="color: #009900;">&#93;</span> <span style="color: #339933;">=</span> <span style="color: #009900;">&#123;</span><span style="color: #0000ff;">&quot;http://oracle.com&quot;</span>, <span style="color: #0000ff;">&quot;http://google.com&quot;</span>, <span style="color: #0000ff;">&quot;http://apple.com&quot;</span>,
+            <span style="color: #0000ff;">&quot;http://ibm.com&quot;</span>, <span style="color: #0000ff;">&quot;http://sap.com&quot;</span><span style="color: #009900;">&#125;</span><span style="color: #339933;">;</span>
+        copy<span style="color: #009900;">&#40;</span>urls, Paths.<span style="color: #006633;">get</span><span style="color: #009900;">&#40;</span><span style="color: #0000ff;">&quot;&quot;</span><span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span> 
+    <span style="color: #009900;">&#125;</span>
+<span style="color: #009900;">&#125;</span></pre></td></tr></table><p class="theCode" style="display:none;">import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+public class Main {
+    public static void copy(String[] urls, Path dst) {
+        int THREADS = 4; // кол-во потоков
+        ExecutorService pool = Executors.newFixedThreadPool(THREADS);
+        List&lt;Callable&lt;Object&gt;&gt; tasks = new ArrayList&lt;&gt;();
+        try {
+            for (int i = 0; i &lt; urls.length; ++i) {
+                final String url = urls[i];
+                final Path dstPath = dst.resolve(i + &quot;.html&quot;);
+                // добавляем задачки
+                tasks.add(new Callable&lt;Object&gt;() {
+                    public Object call() throws Exception {
+                        download(url, dstPath);
+                        return null;
+                    }
+                });
+            }
+            // Запускаем пул потоков и ДОЖИДАЕМСЯ! 
+            List&lt;Future&lt;Object&gt;&gt; invokeAll = pool.invokeAll(tasks);
+        } catch (InterruptedException e) {
+            e.printStackTrace(); // так лучше не делать в продакшене
+        } finally {
+            pool.shutdown();
+        }
+    }
+    // копируем содержимое url в dst (и так тоже лучше не делать в продакшене)
+    private static long download(String url, Path dst) {
+        try {
+            URI u = URI.create(url);
+            try (InputStream in = u.toURL().openStream()) {
+                Files.copy(in, dst, StandardCopyOption.REPLACE_EXISTING);
+            }
+            System.out.printf(&quot;%s -&gt; %s %n&quot;, url, dst);
+            return dst.toFile().length();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
+
+   public static void main(String[] args) throws Exception {
+        String urls[] = {&quot;http://oracle.com&quot;, &quot;http://google.com&quot;, &quot;http://apple.com&quot;,
+            &quot;http://ibm.com&quot;, &quot;http://sap.com&quot;};
+        copy(urls, Paths.get(&quot;&quot;)); 
+    }
+}</p></div>
+
+<p>Конечно в <strong>Java 8</strong> аналогичный код с содержимым цикла будет смотреться более элегантно:</p>
+
+<div class="wp_syntax" style="position:relative;"><table><tr><td class="code"><pre class="java" style="font-family:monospace;">            <span style="color: #000000; font-weight: bold;">for</span> <span style="color: #009900;">&#40;</span><span style="color: #000066; font-weight: bold;">int</span> i <span style="color: #339933;">=</span> <span style="color: #cc66cc;">0</span><span style="color: #339933;">;</span> i <span style="color: #339933;">&lt;</span> urls.<span style="color: #006633;">length</span><span style="color: #339933;">;</span> <span style="color: #339933;">++</span>i<span style="color: #009900;">&#41;</span> <span style="color: #009900;">&#123;</span>
+                <span style="color: #003399;">String</span> url <span style="color: #339933;">=</span> urls<span style="color: #009900;">&#91;</span>i<span style="color: #009900;">&#93;</span><span style="color: #339933;">;</span>
+                Path dstPath <span style="color: #339933;">=</span> dst.<span style="color: #006633;">resolve</span><span style="color: #009900;">&#40;</span>i <span style="color: #339933;">+</span> <span style="color: #0000ff;">&quot;.html&quot;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+                <span style="color: #666666; font-style: italic;">// Да здравствуют лямбды!</span>
+                tasks.<span style="color: #006633;">add</span><span style="color: #009900;">&#40;</span><span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span> <span style="color: #339933;">-&gt;</span> download<span style="color: #009900;">&#40;</span>url, dstPath<span style="color: #009900;">&#41;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+            <span style="color: #009900;">&#125;</span></pre></td></tr></table><p class="theCode" style="display:none;">            for (int i = 0; i &lt; urls.length; ++i) {
+                String url = urls[i];
+                Path dstPath = dst.resolve(i + &quot;.html&quot;);
+                // Да здравствуют лямбды!
+                tasks.add(() -&gt; download(url, dstPath));
+            }</p></div>
+
+<h2>Применимость и граничные условия.</h2>
+<p>Из выше описанного думаю не сложно сделать вывод о том, что к использованию invokeAll следует подходить с пониманием происходящего и осторожностью. </p>
+<p>Лично я использую его не слишком часто, как правило для написания "утилитных" программок, запускаемых из командной строки в обычной JVM. Например эпизодическая выгрузка данных, утилита для конвертации/загрузки чего-либо куда-либо и т.д., в условиях когда можно быстро в ручную проверить, что выполнение прошло успешно.</p>
+<p>Также нужно учитывать, что при работе в Java EE на Application Server-ах так плодить потоки, мягко говоря, не рекомендуется, а спецификация Java EE прямо <a href="http://www.oracle.com/technetwork/java/restrictions-142267.html#threads">запрещает</a> такие вольности с созданием и управлением потоков. </p>
+<p>Известный шуточный принцип "Quod licet bovi, non licet Iovi", как всегда проявляется на Java EE.</p>
+<p>Думаю для Java EE программистов более привычна схема работы с асинхронностью/многопоточностью в ентерпрайзе:<br />
+- либо по старинке через JMS/MDB<br />
+- через managed thread (см. ManagedExecutorService)<br />
+- или выкручиваться на месте, используя умения и особенности конкретного Application Server-а. </p>
+&#9632;
+	
+						
+		</div>
+	
+<div class="postmeta">
+	<p><b>Опубликовано:</b> 21 марта 2014</p>
+	<p><b>Написано в рубрике:</b> <a href="http://programador.ru/category/lang/java/" rel="category tag">Java</a>.</p>
+	<p><b>Теги: </b><a href="http://programador.ru/tag/java/" rel="tag">Java</a>, <a href="http://programador.ru/tag/%d0%bf%d1%80%d0%be%d0%b3%d1%80%d0%b0%d0%bc%d0%bc%d0%b8%d1%80%d0%be%d0%b2%d0%b0%d0%bd%d0%b8%d0%b5/" rel="tag">программирование</a></p>
+</div>
+
+<div id="fb-root"></div>
+<script type='text/javascript'>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+   js = d.createElement(s); js.id = id;
+   js.src = "//connect.facebook.net/ru_RU/all.js#xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+ }(document, 'script', 'facebook-jssdk'));
+</script>
+
+<br/>
+
+<a href="http://bit.ly/fbgroupjobs">
+ <img src="/fb_jobs.jpg" alt="ИЩУ_ПРОГРАММИСТА" style="padding:0"/>
+</a>
+
+<br/>
+
+
+<i>Отметить на Facebook-e:</i> <br/>
+<div data-href="http://programador.ru/invokeall/"  class="fb-like" data-send="false" data-width="550" data-show-faces="false" ></div>
+<br/><br/>
+
+<i>Оставить комментарий:</i> <br/>
+<div class="fb-comments" data-href="http://programador.ru/invokeall/" data-width="550" data-num-posts="12"></div>
+<!--		    
+<iframe src="//www.facebook.com/plugins/likebox.php?href=http://programador.ru/invokeall/&amp;width=292&amp;colorscheme=light&amp;show_faces=false&amp;border_color&amp;stream=false&amp;header=true&amp;height=62" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:292px; height:62px;" allowTransparency="true"></iframe>
+-->		    
+	
+
+	</div>
+
+
+	<ul id="footernav">
+		
+			<li class="next"><a href="http://programador.ru/about-derby-db/" rel="next">Заметки по Derby DB</a> &raquo;</li>		<li class="prev">&laquo; <a href="http://programador.ru/dce-vm-and-hotswap/" rel="prev">DCE VM + HotSwap</a></li>
+			
+	</ul>
+
+
+		</div>
+
+
+	
+<div id="sidebar">
+
+	<ul id="sidebar_one">
+		<li id="search-4" class="widget widget_search">
+<form id="searchform" method="get" action="http://programador.ru">
+	<fieldset>
+	<!-- <label for="searchquery">Поиск</label>  -->
+		<input type="text" value="" name="s" id="searchquery" />
+		<input type="submit" class="submit" accesskey="s" value="Найти" />
+	</fieldset>
+</form>
+</li>
+<li id="text-7" class="widget widget_text">			<div class="textwidget"><p><a href="http://bit.ly/SkyEngPro" ><br />
+    <img src="http://programador.ru/wp-content/uploads/2017/12/petya_skyeng.png" alt="Курсы английского SkyEng"></img><br />
+</a></p>
+</div>
+		</li>
+<li id="categories-3" class="widget widget_categories"><h2>Рубрики</h2>		<ul>
+	<li class="cat-item cat-item-28"><a href="http://programador.ru/category/life/" >0. Мироощущение и бытие</a>
+</li>
+	<li class="cat-item cat-item-26"><a href="http://programador.ru/category/lang/" >1. Языки программирования</a>
+<ul class='children'>
+	<li class="cat-item cat-item-9"><a href="http://programador.ru/category/lang/java/" title="о программировании на JAVA">Java</a>
+</li>
+	<li class="cat-item cat-item-31"><a href="http://programador.ru/category/lang/scala-lang/" >Scala</a>
+</li>
+	<li class="cat-item cat-item-27"><a href="http://programador.ru/category/lang/uml-lang/" >UML</a>
+</li>
+</ul>
+</li>
+	<li class="cat-item cat-item-25"><a href="http://programador.ru/category/theory/" title="Теоретические аспекты программирования">2. Теория программирования</a>
+<ul class='children'>
+	<li class="cat-item cat-item-32"><a href="http://programador.ru/category/theory/design_patterns/" title="О шаблонах проектирования">Шаблоны проектирования</a>
+</li>
+</ul>
+</li>
+	<li class="cat-item cat-item-24"><a href="http://programador.ru/category/toolkit/" >3. Инструментарий</a>
+</li>
+	<li class="cat-item cat-item-29"><a href="http://programador.ru/category/hints/" >4. Полезняшки</a>
+</li>
+	<li class="cat-item cat-item-1"><a href="http://programador.ru/category/%d0%b1%d0%b5%d0%b7-%d1%80%d1%83%d0%b1%d1%80%d0%b8%d0%ba%d0%b8/" >Без рубрики</a>
+</li>
+		</ul>
+</li>
+<li id="tagcloud-2" class="widget widget_tagcloud"><h2>Ярлыки</h2>		<ul class='wp-tag-cloud' role='list'>
+	<li><a href="http://programador.ru/tag/android/" class="tag-cloud-link tag-link-46 tag-link-position-1" style="font-size: 1.4144578313253em;" aria-label="android (13 элементов)">android</a></li>
+	<li><a href="http://programador.ru/tag/blog/" class="tag-cloud-link tag-link-6 tag-link-position-2" style="font-size: 0.93012048192771em;" aria-label="blog (2 элемента)">blog</a></li>
+	<li><a href="http://programador.ru/tag/book/" class="tag-cloud-link tag-link-36 tag-link-position-3" style="font-size: 0.8em;" aria-label="book (1 элемент)">book</a></li>
+	<li><a href="http://programador.ru/tag/branch/" class="tag-cloud-link tag-link-14 tag-link-position-4" style="font-size: 0.8em;" aria-label="branch (1 элемент)">branch</a></li>
+	<li><a href="http://programador.ru/tag/coworking/" class="tag-cloud-link tag-link-54 tag-link-position-5" style="font-size: 1.089156626506em;" aria-label="coworking (4 элемента)">coworking</a></li>
+	<li><a href="http://programador.ru/tag/crypto/" class="tag-cloud-link tag-link-33 tag-link-position-6" style="font-size: 0.8em;" aria-label="crypto (1 элемент)">crypto</a></li>
+	<li><a href="http://programador.ru/tag/css/" class="tag-cloud-link tag-link-7 tag-link-position-7" style="font-size: 0.8em;" aria-label="css (1 элемент)">css</a></li>
+	<li><a href="http://programador.ru/tag/database/" class="tag-cloud-link tag-link-23 tag-link-position-8" style="font-size: 1.1469879518072em;" aria-label="database (5 элементов)">database</a></li>
+	<li><a href="http://programador.ru/tag/design/" class="tag-cloud-link tag-link-21 tag-link-position-9" style="font-size: 0.93012048192771em;" aria-label="design (2 элемента)">design</a></li>
+	<li><a href="http://programador.ru/tag/design-pattern/" class="tag-cloud-link tag-link-22 tag-link-position-10" style="font-size: 0.93012048192771em;" aria-label="design pattern (2 элемента)">design pattern</a></li>
+	<li><a href="http://programador.ru/tag/excel/" class="tag-cloud-link tag-link-42 tag-link-position-11" style="font-size: 0.8em;" aria-label="excel (1 элемент)">excel</a></li>
+	<li><a href="http://programador.ru/tag/ext/" class="tag-cloud-link tag-link-20 tag-link-position-12" style="font-size: 0.8em;" aria-label="ext (1 элемент)">ext</a></li>
+	<li><a href="http://programador.ru/tag/firefox/" class="tag-cloud-link tag-link-43 tag-link-position-13" style="font-size: 0.8em;" aria-label="firefox (1 элемент)">firefox</a></li>
+	<li><a href="http://programador.ru/tag/greasemonkey/" class="tag-cloud-link tag-link-40 tag-link-position-14" style="font-size: 0.8em;" aria-label="Greasemonkey (1 элемент)">Greasemonkey</a></li>
+	<li><a href="http://programador.ru/tag/gwt/" class="tag-cloud-link tag-link-16 tag-link-position-15" style="font-size: 1.0168674698795em;" aria-label="gwt (3 элемента)">gwt</a></li>
+	<li><a href="http://programador.ru/tag/gwt-ext/" class="tag-cloud-link tag-link-8 tag-link-position-16" style="font-size: 0.93012048192771em;" aria-label="gwt-ext (2 элемента)">gwt-ext</a></li>
+	<li><a href="http://programador.ru/tag/hibernate/" class="tag-cloud-link tag-link-34 tag-link-position-17" style="font-size: 0.93012048192771em;" aria-label="hibernate (2 элемента)">hibernate</a></li>
+	<li><a href="http://programador.ru/tag/image/" class="tag-cloud-link tag-link-18 tag-link-position-18" style="font-size: 1.0168674698795em;" aria-label="image (3 элемента)">image</a></li>
+	<li><a href="http://programador.ru/tag/java/" class="tag-cloud-link tag-link-76 tag-link-position-19" style="font-size: 2em;" aria-label="Java (91 элемент)">Java</a></li>
+	<li><a href="http://programador.ru/tag/javascript/" class="tag-cloud-link tag-link-39 tag-link-position-20" style="font-size: 1.089156626506em;" aria-label="JavaScript (4 элемента)">JavaScript</a></li>
+	<li><a href="http://programador.ru/tag/jdbc/" class="tag-cloud-link tag-link-50 tag-link-position-21" style="font-size: 0.8em;" aria-label="jdbc (1 элемент)">jdbc</a></li>
+	<li><a href="http://programador.ru/tag/linux/" class="tag-cloud-link tag-link-11 tag-link-position-22" style="font-size: 1.1975903614458em;" aria-label="linux (6 элементов)">linux</a></li>
+	<li><a href="http://programador.ru/tag/maven/" class="tag-cloud-link tag-link-17 tag-link-position-23" style="font-size: 1.1975903614458em;" aria-label="maven (6 элементов)">maven</a></li>
+	<li><a href="http://programador.ru/tag/multimedia/" class="tag-cloud-link tag-link-49 tag-link-position-24" style="font-size: 0.93012048192771em;" aria-label="multimedia (2 элемента)">multimedia</a></li>
+	<li><a href="http://programador.ru/tag/mysql/" class="tag-cloud-link tag-link-12 tag-link-position-25" style="font-size: 1.089156626506em;" aria-label="mysql (4 элемента)">mysql</a></li>
+	<li><a href="http://programador.ru/tag/netbeans/" class="tag-cloud-link tag-link-4 tag-link-position-26" style="font-size: 1.3349397590361em;" aria-label="netbeans (10 элементов)">netbeans</a></li>
+	<li><a href="http://programador.ru/tag/pool/" class="tag-cloud-link tag-link-51 tag-link-position-27" style="font-size: 0.8em;" aria-label="pool (1 элемент)">pool</a></li>
+	<li><a href="http://programador.ru/tag/rdf/" class="tag-cloud-link tag-link-30 tag-link-position-28" style="font-size: 0.93012048192771em;" aria-label="rdf (2 элемента)">rdf</a></li>
+	<li><a href="http://programador.ru/tag/scala/" class="tag-cloud-link tag-link-5 tag-link-position-29" style="font-size: 1.5084337349398em;" aria-label="Scala (18 элементов)">Scala</a></li>
+	<li><a href="http://programador.ru/tag/soap/" class="tag-cloud-link tag-link-55 tag-link-position-30" style="font-size: 0.8em;" aria-label="soap (1 элемент)">soap</a></li>
+	<li><a href="http://programador.ru/tag/svn/" class="tag-cloud-link tag-link-15 tag-link-position-31" style="font-size: 1.089156626506em;" aria-label="svn (4 элемента)">svn</a></li>
+	<li><a href="http://programador.ru/tag/swift/" class="tag-cloud-link tag-link-10 tag-link-position-32" style="font-size: 0.8em;" aria-label="swift (1 элемент)">swift</a></li>
+	<li><a href="http://programador.ru/tag/tomcat/" class="tag-cloud-link tag-link-41 tag-link-position-33" style="font-size: 1.089156626506em;" aria-label="Tomcat (4 элемента)">Tomcat</a></li>
+	<li><a href="http://programador.ru/tag/uml/" class="tag-cloud-link tag-link-13 tag-link-position-34" style="font-size: 1.3349397590361em;" aria-label="uml (10 элементов)">uml</a></li>
+	<li><a href="http://programador.ru/tag/wiki/" class="tag-cloud-link tag-link-19 tag-link-position-35" style="font-size: 0.8em;" aria-label="wiki (1 элемент)">wiki</a></li>
+	<li><a href="http://programador.ru/tag/xmpp/" class="tag-cloud-link tag-link-38 tag-link-position-36" style="font-size: 0.8em;" aria-label="xmpp (1 элемент)">xmpp</a></li>
+	<li><a href="http://programador.ru/tag/zip/" class="tag-cloud-link tag-link-48 tag-link-position-37" style="font-size: 0.8em;" aria-label="zip (1 элемент)">zip</a></li>
+	<li><a href="http://programador.ru/tag/%d0%b0%d0%b2%d1%82%d0%be%d1%80%d0%b8%d0%b7%d0%b0%d1%86%d0%b8%d1%8f/" class="tag-cloud-link tag-link-47 tag-link-position-38" style="font-size: 0.93012048192771em;" aria-label="авторизация (2 элемента)">авторизация</a></li>
+	<li><a href="http://programador.ru/tag/%d0%b0%d1%80%d1%85%d0%b8%d1%82%d0%b5%d0%ba%d1%82%d0%be%d1%80/" class="tag-cloud-link tag-link-53 tag-link-position-39" style="font-size: 0.8em;" aria-label="архитектор (1 элемент)">архитектор</a></li>
+	<li><a href="http://programador.ru/tag/%d0%ba%d0%be%d1%84%d0%b5/" class="tag-cloud-link tag-link-45 tag-link-position-40" style="font-size: 0.8em;" aria-label="кофе (1 элемент)">кофе</a></li>
+	<li><a href="http://programador.ru/tag/%d0%bc%d0%b5%d1%81%d1%82%d0%b0/" class="tag-cloud-link tag-link-44 tag-link-position-41" style="font-size: 1.0168674698795em;" aria-label="места (3 элемента)">места</a></li>
+	<li><a href="http://programador.ru/tag/%d0%bf%d1%80%d0%be%d0%b3%d1%80%d0%b0%d0%bc%d0%bc%d0%b8%d1%80%d0%be%d0%b2%d0%b0%d0%bd%d0%b8%d0%b5/" class="tag-cloud-link tag-link-3 tag-link-position-42" style="font-size: 1.8915662650602em;" aria-label="программирование (64 элемента)">программирование</a></li>
+	<li><a href="http://programador.ru/tag/%d1%80%d0%b0%d0%b1%d0%be%d1%82%d0%b0/" class="tag-cloud-link tag-link-35 tag-link-position-43" style="font-size: 1.3638554216867em;" aria-label="работа (11 элементов)">работа</a></li>
+	<li><a href="http://programador.ru/tag/%d1%81%d0%b5%d1%80%d1%82%d0%b8%d1%84%d0%b8%d0%ba%d0%b0%d1%82/" class="tag-cloud-link tag-link-52 tag-link-position-44" style="font-size: 0.8em;" aria-label="сертификат (1 элемент)">сертификат</a></li>
+	<li><a href="http://programador.ru/tag/%d1%84%d0%b8%d0%b7%d1%82%d0%b5%d1%85/" class="tag-cloud-link tag-link-37 tag-link-position-45" style="font-size: 0.93012048192771em;" aria-label="физтех (2 элемента)">физтех</a></li>
+</ul>
+</li>
+<li id="text-4" class="widget widget_text">			<div class="textwidget"><!-- <div class="vcard">
+    <h1><a href="/vcard">@author: <u>Виталий Лигай</u></a></h1>
+
+Эл. адрес: <a class="email" href="mailto:vit@programmisty.com">vit@programmisty.com</a>
+<p>
+Java EE Architect   (SCEA)<br/> Android Developer
+    <br style="clear:both"/>
+</p>
+
+</div>    
+--></div>
+		</li>
+		<li id="recent-posts-3" class="widget widget_recent_entries">		<h2>Свежие записи</h2>		<ul>
+					<li>
+				<a href="http://programador.ru/multi-map/">Multi-map в Java 8</a>
+						</li>
+					<li>
+				<a href="http://programador.ru/java-ide-netbeans-ubuntu/">Про настройку шрифтов в IDE (Netbeans) под Linux.</a>
+						</li>
+					<li>
+				<a href="http://programador.ru/json-parser/">Про org.json парсер</a>
+						</li>
+					<li>
+				<a href="http://programador.ru/computer-for-programmer/">Компьютер/ноутбук для программиста</a>
+						</li>
+					<li>
+				<a href="http://programador.ru/tomcat-install/">Установка и настройка Apache Tomcat под Linux</a>
+						</li>
+					<li>
+				<a href="http://programador.ru/android-tv-marshmallow/">Про Android TV.</a>
+						</li>
+					<li>
+				<a href="http://programador.ru/fwd-just-say-mno-to-hungarian-notation/">FWD: Just Say mNo to Hungarian Notation!</a>
+						</li>
+					<li>
+				<a href="http://programador.ru/in-digital-october/">В Digital October</a>
+						</li>
+					<li>
+				<a href="http://programador.ru/snappydb-leveldb/">Заметка об экспериментах со SnappyDB (NoSQL KeyValue DB под Android)</a>
+						</li>
+					<li>
+				<a href="http://programador.ru/scala-tu-udemy/">Мини-пост про scala туториал</a>
+						</li>
+					<li>
+				<a href="http://programador.ru/mustache-template-engine/">Шаблонизатор mustache и Java.</a>
+						</li>
+					<li>
+				<a href="http://programador.ru/android-design-support-library/">Android Design Support Library</a>
+						</li>
+					<li>
+				<a href="http://programador.ru/in-the-gradle/">Про Gradle для любопытных.</a>
+						</li>
+					<li>
+				<a href="http://programador.ru/java-learning-beta/">Практикум по программированию. Beta.</a>
+						</li>
+					<li>
+				<a href="http://programador.ru/fop-pdf-and-design/">Про FOP, SVG, PDF и значение дизайна.</a>
+						</li>
+					<li>
+				<a href="http://programador.ru/tzupdater/">Обновление времени в Java.</a>
+						</li>
+					<li>
+				<a href="http://programador.ru/estimate/">Оборачиваясь назад.</a>
+						</li>
+					<li>
+				<a href="http://programador.ru/auth-by-https-client-cert/">HTTPS авторизация по сертификату</a>
+						</li>
+					<li>
+				<a href="http://programador.ru/about-derby-db/">Заметки по Derby DB</a>
+						</li>
+					<li>
+				<a href="http://programador.ru/invokeall/">Распараллеливание задач в Java через InvokeAll</a>
+						</li>
+					<li>
+				<a href="http://programador.ru/dce-vm-and-hotswap/">DCE VM + HotSwap</a>
+						</li>
+					<li>
+				<a href="http://programador.ru/annonce/">Про новые публикации на блоге и планы на ближайшее будущее</a>
+						</li>
+					<li>
+				<a href="http://programador.ru/java-xml-parsing/">Java и парсинг XML</a>
+						</li>
+					<li>
+				<a href="http://programador.ru/pi-and-estimate/">Умножаем на пи (? = 3,14159265&#8230;)</a>
+						</li>
+					<li>
+				<a href="http://programador.ru/netbeans-platform-my-impression/">Java и десктоп приложения. Впечатления от Netbeans Platform.</a>
+						</li>
+					<li>
+				<a href="http://programador.ru/duke-coworking-widget/">Duke, Coworking, Widget.</a>
+						</li>
+					<li>
+				<a href="http://programador.ru/estimation/">Сколько стоит?</a>
+						</li>
+					<li>
+				<a href="http://programador.ru/about-web-frameworks/">Apples and oranges. Сравнение веб-фреймворков.</a>
+						</li>
+					<li>
+				<a href="http://programador.ru/asm/">Про ASM и манипуляции с байт-кодом.</a>
+						</li>
+					<li>
+				<a href="http://programador.ru/band/">Let&#8217;s rock, everybody!</a>
+						</li>
+				</ul>
+		</li>
+		<li id="linkcat-2" class="widget widget_links"><h2>Ссылки</h2>
+	<ul class='xoxo blogroll'>
+<li><a href="http://programmisty.com" target="_blank">#Фигачу: Банда программистов</a></li>
+<li><a href="http://javajobs.ru" target="_blank">#Фигачу: Вакансии для java-программистов</a></li>
+<li><a href="http://slava-semushin.blogspot.com/">Блог. Заметки о программировании</a></li>
+<li><a href="http://zenbox.ru/">Блог. Заметки по IT</a></li>
+<li><a href="http://www.it-simple.ru" rel="acquaintance" title="Админский блог. Вместе учились на физтехе :-)" target="_blank">Каморка злобного админа.</a></li>
+<li><a href="http://www.java-planet.ru/" title="Лента публикаций русскоязычной блогосферы по программированию на языке Java">Планета Java. RSS</a></li>
+<li><a href="http://java.dzone.com/" title="один из наиболее популярных жавных сайтов&#8230;" target="_blank">Сердце сообщества Java-разработчиков</a></li>
+<li><a href="http://val-khmyrov.blogspot.com/" rel="acquaintance colleague" title="Вместе работали" target="_blank">Сисадминские заметки. Oracle, Linux и т.д.</a></li>
+<li><a href="http://www.javatalks.ru/" target="_blank">Форум для java-программистов</a></li>
+
+	</ul>
+</li>
+
+<li id="archives-3" class="widget widget_archive"><h2>Архивы</h2>		<ul>
+			<li><a href='http://programador.ru/2017/03/'>Март 2017</a></li>
+	<li><a href='http://programador.ru/2016/11/'>Ноябрь 2016</a></li>
+	<li><a href='http://programador.ru/2016/06/'>Июнь 2016</a></li>
+	<li><a href='http://programador.ru/2016/04/'>Апрель 2016</a></li>
+	<li><a href='http://programador.ru/2016/01/'>Январь 2016</a></li>
+	<li><a href='http://programador.ru/2015/11/'>Ноябрь 2015</a></li>
+	<li><a href='http://programador.ru/2015/10/'>Октябрь 2015</a></li>
+	<li><a href='http://programador.ru/2015/09/'>Сентябрь 2015</a></li>
+	<li><a href='http://programador.ru/2015/05/'>Май 2015</a></li>
+	<li><a href='http://programador.ru/2015/03/'>Март 2015</a></li>
+	<li><a href='http://programador.ru/2015/02/'>Февраль 2015</a></li>
+	<li><a href='http://programador.ru/2015/01/'>Январь 2015</a></li>
+	<li><a href='http://programador.ru/2014/12/'>Декабрь 2014</a></li>
+	<li><a href='http://programador.ru/2014/11/'>Ноябрь 2014</a></li>
+	<li><a href='http://programador.ru/2014/09/'>Сентябрь 2014</a></li>
+	<li><a href='http://programador.ru/2014/03/'>Март 2014</a></li>
+	<li><a href='http://programador.ru/2014/02/'>Февраль 2014</a></li>
+	<li><a href='http://programador.ru/2013/12/'>Декабрь 2013</a></li>
+	<li><a href='http://programador.ru/2013/10/'>Октябрь 2013</a></li>
+	<li><a href='http://programador.ru/2013/08/'>Август 2013</a></li>
+	<li><a href='http://programador.ru/2013/07/'>Июль 2013</a></li>
+	<li><a href='http://programador.ru/2013/06/'>Июнь 2013</a></li>
+	<li><a href='http://programador.ru/2013/05/'>Май 2013</a></li>
+	<li><a href='http://programador.ru/2013/04/'>Апрель 2013</a></li>
+	<li><a href='http://programador.ru/2013/03/'>Март 2013</a></li>
+	<li><a href='http://programador.ru/2013/02/'>Февраль 2013</a></li>
+	<li><a href='http://programador.ru/2013/01/'>Январь 2013</a></li>
+	<li><a href='http://programador.ru/2012/11/'>Ноябрь 2012</a></li>
+	<li><a href='http://programador.ru/2012/10/'>Октябрь 2012</a></li>
+	<li><a href='http://programador.ru/2012/08/'>Август 2012</a></li>
+	<li><a href='http://programador.ru/2012/06/'>Июнь 2012</a></li>
+	<li><a href='http://programador.ru/2012/05/'>Май 2012</a></li>
+	<li><a href='http://programador.ru/2012/04/'>Апрель 2012</a></li>
+	<li><a href='http://programador.ru/2012/03/'>Март 2012</a></li>
+	<li><a href='http://programador.ru/2012/02/'>Февраль 2012</a></li>
+	<li><a href='http://programador.ru/2012/01/'>Январь 2012</a></li>
+	<li><a href='http://programador.ru/2011/12/'>Декабрь 2011</a></li>
+	<li><a href='http://programador.ru/2011/11/'>Ноябрь 2011</a></li>
+	<li><a href='http://programador.ru/2011/09/'>Сентябрь 2011</a></li>
+	<li><a href='http://programador.ru/2011/08/'>Август 2011</a></li>
+	<li><a href='http://programador.ru/2011/07/'>Июль 2011</a></li>
+	<li><a href='http://programador.ru/2011/06/'>Июнь 2011</a></li>
+	<li><a href='http://programador.ru/2011/05/'>Май 2011</a></li>
+	<li><a href='http://programador.ru/2011/04/'>Апрель 2011</a></li>
+	<li><a href='http://programador.ru/2011/03/'>Март 2011</a></li>
+	<li><a href='http://programador.ru/2011/02/'>Февраль 2011</a></li>
+	<li><a href='http://programador.ru/2011/01/'>Январь 2011</a></li>
+	<li><a href='http://programador.ru/2010/12/'>Декабрь 2010</a></li>
+	<li><a href='http://programador.ru/2010/10/'>Октябрь 2010</a></li>
+	<li><a href='http://programador.ru/2010/09/'>Сентябрь 2010</a></li>
+	<li><a href='http://programador.ru/2010/08/'>Август 2010</a></li>
+	<li><a href='http://programador.ru/2010/07/'>Июль 2010</a></li>
+	<li><a href='http://programador.ru/2010/06/'>Июнь 2010</a></li>
+	<li><a href='http://programador.ru/2010/05/'>Май 2010</a></li>
+	<li><a href='http://programador.ru/2010/04/'>Апрель 2010</a></li>
+	<li><a href='http://programador.ru/2010/03/'>Март 2010</a></li>
+	<li><a href='http://programador.ru/2010/02/'>Февраль 2010</a></li>
+	<li><a href='http://programador.ru/2009/12/'>Декабрь 2009</a></li>
+	<li><a href='http://programador.ru/2009/11/'>Ноябрь 2009</a></li>
+	<li><a href='http://programador.ru/2009/10/'>Октябрь 2009</a></li>
+	<li><a href='http://programador.ru/2009/08/'>Август 2009</a></li>
+	<li><a href='http://programador.ru/2009/06/'>Июнь 2009</a></li>
+	<li><a href='http://programador.ru/2008/06/'>Июнь 2008</a></li>
+	<li><a href='http://programador.ru/2008/05/'>Май 2008</a></li>
+		</ul>
+		</li>
+<li id="text-6" class="widget widget_text">			<div class="textwidget"><script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-13259778-1', 'auto');
+  ga('send', 'pageview');
+
+</script></div>
+		</li>
+	</ul>
+
+
+</div>
+<!-- end sidebar -->
+
+
+		<div id="footer">
+			<p>
+				При полном или частичном использовании материалов ссылка на сайт <a href="http://programador.ru">programador.ru</a> обязательна.
+				<br/>
+				
+
+				Content &copy; <a accesskey="h" href="http://programador.ru/"> Блог Java программиста</a> |
+
+				 
+
+				Powered by				<a href="http://wordpress.org/">WordPress</a>
+					&amp;
+				built on <a href="http://wordpreciousss.org/" rel="nofollow" title="Precious WP Theme">WordPreciousss</a>
+
+				
+				| <a href="#top" accesskey="1" title="Top of page">Top</a>
+			</p>		
+<div>
+<br/><br/><br/>
+</div>	
+		</div>
+	</div>
+
+<div id="wpfooter"><script type='text/javascript' src='http://programador.ru/wp-includes/js/comment-reply.min.js?ver=4.8'></script>
+<script type='text/javascript' src='http://programador.ru/wp-content/plugins/wp-syntax/js/wp-syntax.js?ver=1.1'></script>
+<script type='text/javascript' src='http://programador.ru/wp-includes/js/wp-embed.min.js?ver=4.8'></script>
+</div>
+
+<script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
+</body>
+</html>

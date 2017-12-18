@@ -1,16 +1,11 @@
 package com.javacore.brokenLinksFinder;
 
-import javax.xml.ws.Service;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.regex.Pattern;
 
 public class HTMLBrokenLinksFinder {
@@ -20,8 +15,11 @@ public class HTMLBrokenLinksFinder {
     private static final String THREADS_COUNT_KEY = "threadsCount";
     private static final Pattern HTML_FILE_PATTERN = Pattern.compile("(.+)[.](html)$");
     private static final Pattern REPORT_FILE_PATTERN = Pattern.compile("(.+)[.](csv)$");
-    private static final int MIN_THREADS_COUNT = 1;
-    private static final HTMLParser.Attribute[] LINK_ATTRIBUTES = { HTMLParser.Attribute.HREF, HTMLParser.Attribute.SRC };
+    private static final int MIN_THREADS_COUNT = 10;
+    private static final HTMLParser.Attribute[] LINK_ATTRIBUTES = {
+            HTMLParser.Attribute.HREF,
+            HTMLParser.Attribute.SRC
+    };
 
     private static HashMap<String, List<String>> fileLinks = new HashMap<>();
     private static HashSet<String> filesToParse = new HashSet<>();
@@ -43,7 +41,7 @@ public class HTMLBrokenLinksFinder {
     }
 
     private static void readPropertiesFile() {
-        PropertiesParser parser = new PropertiesParser();
+        final PropertiesParser parser = new PropertiesParser();
 
         if (parser.load(PROPERTIES_FILE) || parser.isContainsKey(THREADS_COUNT_KEY)) {
             threadsCount = MIN_THREADS_COUNT;
@@ -60,9 +58,10 @@ public class HTMLBrokenLinksFinder {
     }
 
     private static void readCommandLine(final String[] args) {
-        final CommandParser parser = new CommandParser()
+        final CommandParser parser = new CommandParser.Builder()
                 .addFlag(HTML_FILES_FLAG, HTML_FILE_PATTERN)
                 .addFlag(REPORT_FILE_FLAG, REPORT_FILE_PATTERN)
+                .build()
                 .parse(args);
 
         if (!parser.isSuccess()) {
@@ -79,6 +78,11 @@ public class HTMLBrokenLinksFinder {
                 final String html = new String(Files.readAllBytes(Paths.get(file)));
                 final List<String> links = HTMLParser.getValues(html, LINK_ATTRIBUTES);
                 calls.add(new CheckCodeCall(file, links));
+                System.out.printf(
+                        "Found %s links in file '%s'",
+                        links.size(),
+                        file
+                );
             } catch (Exception ex) {
                 // TODO: Error log
             }
@@ -86,15 +90,33 @@ public class HTMLBrokenLinksFinder {
     }
 
     private static void enterProcess() {
+        final ExecutorService service = Executors.newFixedThreadPool(threadsCount);
+
         try {
-            final ExecutorService service = Executors.newFixedThreadPool(threadsCount);
             callsResult = service.invokeAll(calls);
         } catch (InterruptedException ex) {
             // TODO: Error log
+        } finally {
+            service.shutdown();
         }
     }
 
     private static void writeReport() {
-        // TODO: Report log
+        try {
+            for (final Future<LinksCodeContainer> containerFuture : callsResult) {
+                final LinksCodeContainer container = containerFuture.get();
+                System.out.printf(container.getFilename());
+
+                for(final Map.Entry<String, Integer> urlState : container.getCodes().entrySet()) {
+                    System.out.printf(
+                            "%s %s\n",
+                            urlState.getKey(),
+                            urlState.getValue()
+                    );
+                }
+            }
+        } catch (Exception ex) {
+            // TODO: Report log
+        }
     }
 }

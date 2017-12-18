@@ -22,22 +22,6 @@ class CommandParser {
         return errorMessage;
     }
 
-    CommandParser addFlag(final String flag) throws IllegalArgumentException {
-        if (!FLAG_REGEX.matcher(flag).matches()) {
-            throw new IllegalArgumentException(INVALID_FLAG_FORMAT);
-        }
-        flagArgs.put(flag, new ArrayList<>());
-
-        return this;
-    }
-
-    CommandParser addFlag(final String flag, Pattern argsRegex) throws IllegalArgumentException {
-        addFlag(flag);
-        flagRegex.put(flag, argsRegex);
-
-        return this;
-    }
-
     CommandParser parse(final String[] args) throws IllegalStateException {
         if (flagArgs.isEmpty()) {
             throw new IllegalStateException(FLAGS_NOT_ASSIGNED);
@@ -57,6 +41,8 @@ class CommandParser {
     boolean isSuccess() {
         return isSuccess;
     }
+
+    private CommandParser() {}
 
     private boolean enterParse(final String[] args) {
         HashSet<String> passedFlags = new HashSet<>();
@@ -111,6 +97,31 @@ class CommandParser {
     private void cleanup() {
         for (Map.Entry<String, List<String>> entry : flagArgs.entrySet()) {
             entry.getValue().clear();
+        }
+    }
+
+    public static class Builder implements javafx.util.Builder<CommandParser> {
+        private final CommandParser parser = new CommandParser();
+
+        Builder addFlag(final String flag) throws IllegalArgumentException {
+            if (!FLAG_REGEX.matcher(flag).matches()) {
+                throw new IllegalArgumentException(INVALID_FLAG_FORMAT);
+            }
+            parser.flagArgs.put(flag, new ArrayList<>());
+
+            return this;
+        }
+
+        Builder addFlag(final String flag, Pattern argsRegex) throws IllegalArgumentException {
+            addFlag(flag);
+            parser.flagRegex.put(flag, argsRegex);
+
+            return this;
+        }
+
+        @Override
+        public CommandParser build() {
+            return parser;
         }
     }
 }

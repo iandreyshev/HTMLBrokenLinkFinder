@@ -14,8 +14,13 @@ class CheckCodeCall implements Callable<LinksCodeContainer> {
 
     @Override
     public LinksCodeContainer call() throws Exception {
-        for(final String url : links) {
-            final int code = WebWorker.getCode(url);
+        for (final String url : links) {
+            final int code = new HttpCodeHandler.Builder()
+                    .setInvalidUrlCode(0)
+                    .setResponseErrorCode(0)
+                    .build()
+                    .getCode(url);
+
             container.add(url, code);
         }
 
