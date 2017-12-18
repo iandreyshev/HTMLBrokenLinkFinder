@@ -21,7 +21,6 @@ class HttpCodeCall implements Callable<HttpCodeContainer> {
                     .build()
                     .getCode(url);
 
-            System.out.printf("Take code from '%s' file link\n", container.getFilename());
             container.add(url, code);
         }
 

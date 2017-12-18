@@ -11,14 +11,12 @@ public class CommandParserTest {
     private static final String validFlagOne = "--flagOne";
     private static final String validFlagTwo = "--flagTwo";
     private static final String invalidFlag = "flag";
-    private CommandParser emptyParser;
     private CommandParser validWithOneFlag;
     private CommandParser validWithTwoFlags;
     private CommandParser validWithOneFlagAndNumberPattern;
 
     @Before
     public void updateParser() {
-        emptyParser = new CommandParser.Builder().build();
         validWithOneFlag = new CommandParser.Builder()
                 .addFlag(validFlagOne)
                 .build();
@@ -113,12 +111,5 @@ public class CommandParserTest {
         CommandParser parser = new CommandParser.Builder()
                 .addFlag(invalidFlag)
                 .build();
-    }
-
-    @Test (expected = IllegalStateException.class)
-    public void catchExceptionIfParseWithoutAssignedFlags() {
-        final String[] args = {validFlagOne, "arg1" };
-
-        emptyParser.parse(args);
     }
 }

@@ -22,16 +22,17 @@ class CommandParser {
         return errorMessage;
     }
 
-    CommandParser parse(final String[] args) throws IllegalStateException {
+    boolean parse(final String[] args) {
         if (flagArgs.isEmpty()) {
-            throw new IllegalStateException(FLAGS_NOT_ASSIGNED);
+            errorMessage = FLAGS_NOT_ASSIGNED;
+            return false;
         }
 
         cleanup();
         errorMessage = EMPTY_ARGS_ARRAY;
         isSuccess = args.length > 0 && enterParse(args);
 
-        return this;
+        return isSuccess;
     }
 
     List<String> getArgsForFlag(final String flag) {
