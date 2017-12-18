@@ -22,9 +22,13 @@ public class PropertiesHelper {
 
 	public Integer getInteger(final String key) {
 		try {
-			return Integer.parseInt(properties.getProperty(key));
+			return Integer.parseInt(properties.getProperty(key, null));
 		} catch (NumberFormatException e) {
 			return null;
 		}
+	}
+
+	public Boolean getBoolean(final String key) {
+		return Boolean.parseBoolean(properties.getProperty(key, null));
 	}
 }
