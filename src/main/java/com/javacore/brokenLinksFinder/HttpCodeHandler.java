@@ -26,6 +26,8 @@ final class HttpCodeHandler {
         }
     }
 
+    private HttpCodeHandler() {}
+
     public static class Builder implements javafx.util.Builder<HttpCodeHandler> {
         private final HttpCodeHandler handler = new HttpCodeHandler();
 
