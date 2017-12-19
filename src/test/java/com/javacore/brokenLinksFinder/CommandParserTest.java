@@ -1,10 +1,12 @@
 package com.javacore.brokenLinksFinder;
 
+import com.javacore.brokenLinksFinder.exception.CmdParserException;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 
 public class CommandParserTest {
@@ -37,14 +39,17 @@ public class CommandParserTest {
     @Test
     public void parseEmptyArgsArray() {
         String[] args = {};
-        validWithOneFlag.parse(args);
 
-        assertFalse(validWithOneFlag.isSuccess());
+        try {
+            validWithOneFlag.parse(args);
+        } catch (CmdParserException ex) {
+            fail();
+        }
     }
 
     @Test
-    public void getResultForCompleteParserWithOneFlagAndZeroArgs() {
-        final String[] args = {validFlagOne};
+    public void getResultForCompleteParserWithOneFlagAndZeroArgs() throws CmdParserException {
+        final String[] args = { validFlagOne };
         validWithOneFlag.parse(args);
 
         assertTrue(validWithOneFlag.getArgsForFlag(validFlagOne).isEmpty());
@@ -55,7 +60,12 @@ public class CommandParserTest {
         final String firstArg = "arg1";
         final String secondArg = "arg2";
         final String[] args = {validFlagOne, firstArg, secondArg };
-        validWithOneFlag.parse(args);
+
+        try {
+            validWithOneFlag.parse(args);
+        } catch (Exception ex) {
+            fail();
+        }
         final List<String> result = validWithOneFlag.getArgsForFlag(validFlagOne);
 
         assertEquals(result.size(), 2);
@@ -68,7 +78,13 @@ public class CommandParserTest {
         final String firstArg = "arg1";
         final String secondArg = "arg2";
         final String[] args = {validFlagOne, firstArg, secondArg, validFlagTwo, secondArg, firstArg };
-        validWithTwoFlags.parse(args);
+
+        try {
+            validWithTwoFlags.parse(args);
+        } catch (Exception ex) {
+            fail();
+        }
+
         List<String> result = validWithTwoFlags.getArgsForFlag(validFlagOne);
 
         assertEquals(result.size(), 2);
@@ -81,29 +97,22 @@ public class CommandParserTest {
         assertEquals(result.get(1), firstArg);
     }
 
-    @Test
-    public void failedToParseArgsWithDuplicateFlags() {
+    @Test (expected = CmdParserException.class)
+    public void failedToParseArgsWithDuplicateFlags() throws CmdParserException {
         final String[] args = {validFlagOne, "arg1", validFlagOne, "arg2" };
         validWithOneFlag.parse(args);
-
-        assertFalse(validWithOneFlag.isSuccess());
-        assertEquals("Duplicate flag is not allowed", validWithOneFlag.getErrorMessage());
     }
 
-    @Test
-    public void failedToParseArgsWithWithPattern() {
+    @Test (expected = CmdParserException.class)
+    public void failedToParseArgsWithWithPattern() throws CmdParserException {
         final String[] args = {validFlagOne, "valid1", "valid2", "invalid" };
         validWithOneFlagAndNumberPattern.parse(args);
-
-        assertFalse(validWithOneFlagAndNumberPattern.isSuccess());
     }
 
-    @Test
-    public void failedToParseArgsWithoutFirstFlag() {
+    @Test (expected = CmdParserException.class)
+    public void failedToParseArgsWithoutFirstFlag() throws CmdParserException {
         final String[] args = { "arg1", "arg2", "arg3" };
         validWithOneFlag.parse(args);
-
-        assertFalse(validWithOneFlag.isSuccess());
     }
 
     @Test (expected = IllegalArgumentException.class)

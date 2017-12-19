@@ -3,50 +3,50 @@ package com.javacore.brokenLinksFinder.logger;
 import java.io.OutputStream;
 
 public class Logger {
-    private OutputStream output = System.out;
-    private OutputStream errOutput = System.err;
-    private boolean isEnable;
+    private final static String ERROR_PRINT_PATTERN = "Can not print to stream '%s'";
+    private OutputStream stream = System.out;
+    private OutputStream errorStream = System.err;
+    private boolean isEnable = true;
 
     public final void setStream(final OutputStream stream) {
-        output = stream;
+        this.stream = stream;
+    }
+
+    public final void setErrorStream(final OutputStream stream) {
+        errorStream = stream;
     }
 
     public final void setEnable(boolean isEnable) {
         this.isEnable = isEnable;
     }
 
+    public final void print(final String message) {
+        print(stream, message);
+    }
+
     public final void optionalPrint(final String message) {
-        optionalPrint(output, message.getBytes());
-    }
-
-    public final void optionalPrintln(final String message) {
-        optionalPrint(output, (message + "\n").getBytes());
-    }
-
-    public final void requiredPrint(final String message) {
-        requiredPrint(output, message.getBytes());
-    }
-
-    public final void requiredPrintln(final String message) {
-        requiredPrint(message + "\n");
+        optionalPrint(stream, message);
     }
 
     public final void printErr(final String message) {
-        requiredPrint(errOutput, (message + "\n").getBytes());
+        print(errorStream, message);
     }
 
-    private void optionalPrint(final OutputStream stream, final byte[] bytes) {
+    private void optionalPrint(final OutputStream stream, final String message) {
         if (!isEnable) {
             return;
         }
-        requiredPrint(stream, bytes);
+        print(stream, message);
     }
 
-    private void requiredPrint(final OutputStream stream, final byte[] bytes) {
+    private void print(final OutputStream stream, final String message) {
         try {
-            stream.write(bytes);
+            stream.write((message + "\n").getBytes());
         } catch (Exception ex) {
-            System.err.print(ex.getMessage());
+            System.err.println(String.format(
+                    ERROR_PRINT_PATTERN,
+                    stream)
+            );
         }
     }
 }

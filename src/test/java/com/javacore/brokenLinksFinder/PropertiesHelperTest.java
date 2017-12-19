@@ -1,5 +1,6 @@
 package com.javacore.brokenLinksFinder;
 
+import com.javacore.brokenLinksFinder.exception.PropsHelperException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -20,21 +21,15 @@ public class PropertiesHelperTest {
 	private PropertiesHelper propertiesHelper;
 
 	@Before
-	public void setUp() throws IOException {
+	public void setUp() throws PropsHelperException {
 		ClassLoader classLoader = getClass().getClassLoader();
 		File file = new File(classLoader.getResource(PROPERTIES_FILE_NAME).getFile());
 		propertiesHelper = new PropertiesHelper(file);
 	}
 
-	@Test
-	public void constructor() {
-		try {
-			PropertiesHelper propertiesHelper = new PropertiesHelper(new File(PROPERTIES_NOT_EXISTING_FILE_NAME));
-		} catch (FileNotFoundException fileNotFoundException) {
-			assertTrue(true);
-		} catch (IOException ioException) {
-			fail();
-		}
+	@Test (expected = PropsHelperException.class)
+	public void constructor() throws PropsHelperException {
+		new PropertiesHelper(new File(PROPERTIES_NOT_EXISTING_FILE_NAME));
 	}
 
 	@Test
