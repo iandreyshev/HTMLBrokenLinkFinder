@@ -1,5 +1,6 @@
 package com.javacore.brokenLinksFinder;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -42,7 +43,7 @@ public class HtmlBrokenLinksFinder {
     }
 
     private static void readPropertiesFile() throws IOException {
-        final PropertiesHelper parser = new PropertiesHelper(PROPERTIES_FILE);
+        final PropertiesHelper parser = new PropertiesHelper(new File(PROPERTIES_FILE));
         threadsCount = parser.getInteger(THREADS_COUNT_KEY);
         if (threadsCount == null) {
             threadsCount = MIN_THREADS_COUNT;

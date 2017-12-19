@@ -1,5 +1,6 @@
 package com.javacore.brokenLinksFinder;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -10,11 +11,11 @@ public class PropertiesHelper {
 	private final static String IO_ERROR = "Не удаётся прочитать файл \"%s";
 	private final Properties properties = new Properties();
 
-	PropertiesHelper(final String propertiesFileName) throws IOException {
+	PropertiesHelper(final File propertiesFileName) throws IOException {
 		try {
 			properties.load(new FileInputStream(propertiesFileName));
 		} catch (FileNotFoundException fileNotFoundException) {
-			throw new IllegalArgumentException(String.format(FILE_NOT_FOUND_ERROR, propertiesFileName));
+			throw new FileNotFoundException(String.format(FILE_NOT_FOUND_ERROR, propertiesFileName));
 		} catch (IOException ioException) {
 			throw new IOException(String.format(IO_ERROR, propertiesFileName));
 		}

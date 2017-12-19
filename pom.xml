@@ -69,9 +69,15 @@
         </plugins>
         <resources>
             <resource>
-                <directory>resources</directory>
+                <directory>src/main/resources</directory>
                 <includes>
-                    <include>config</include>
+                    <include>config.properties</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/test/resources</directory>
+                <includes>
+                    <include>config.properties</include>
                 </includes>
             </resource>
         </resources>
