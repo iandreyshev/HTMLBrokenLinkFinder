@@ -67,6 +67,14 @@
                 </executions>
             </plugin>
         </plugins>
+        <resources>
+            <resource>
+                <directory>resources</directory>
+                <includes>
+                    <include>config</include>
+                </includes>
+            </resource>
+        </resources>
     </build>
 
     <groupId>com.javacore.brokenLinkFinder</groupId>
