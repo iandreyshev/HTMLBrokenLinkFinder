@@ -29,7 +29,7 @@ public class HtmlBrokenLinksFinder {
             HtmlParser.Attribute.SRC
     };
 
-    private static final HtmlBrokenLinksFinderLogger log = new HtmlBrokenLinksFinderLogger(System.out);
+    private static final HtmlBrokenLinksFinderLogger logger = new HtmlBrokenLinksFinderLogger(System.out);
     private static final HashSet<String> filesToParse = new HashSet<>();
     private static final List<HttpCodeCall> calls = new ArrayList<>();
     private static List<Future<HtmlUrlInfo>> callsResult;
@@ -44,16 +44,16 @@ public class HtmlBrokenLinksFinder {
             requestCodes();
             writeReport();
         } catch (FinderException ex) {
-            log.exception(ex);
+            logger.exception(ex);
         } catch (Exception ex) {
-            log.print(ex.getMessage());
+            logger.print(ex.getMessage());
         }
     }
 
     private static void readPropertiesFile() throws PropsHelperException {
         final PropertiesHelper parser = new PropertiesHelper(new File(PROPERTIES_FILE));
         threadsCount = parser.getInteger(THREADS_COUNT_KEY);
-        log.setEnable(parser.getBoolean(SHOW_LOG_KEY));
+        logger.setEnable(parser.getBoolean(SHOW_LOG_KEY));
     }
 
     private static void readCommandLine(final String[] args) throws CmdParserException {
@@ -84,20 +84,20 @@ public class HtmlBrokenLinksFinder {
         }
     }
 
-    private static void requestCodes() throws ThreadPoolException {
+    private static void requestCodes() throws ThreadsException {
         final ExecutorService service = Executors.newFixedThreadPool(threadsCount);
 
         try {
             callsResult = service.invokeAll(calls);
         } catch (InterruptedException ex) {
-            log.message(ERROR_THREADS_WORK);
+            logger.message(ERROR_THREADS_WORK);
             ex.printStackTrace();
         } finally {
             service.shutdown();
         }
     }
 
-    private static void writeReport() throws ReportException {
+    private static void writeReport() throws ReportException, ThreadsException {
         try (final OutputStream output = new FileOutputStream(reportFile)) {
 
             for (final Future<HtmlUrlInfo> containerFuture : callsResult) {
@@ -106,10 +106,11 @@ public class HtmlBrokenLinksFinder {
                     final HtmlBrokenLinksFinderLogger logger = new HtmlBrokenLinksFinderLogger(output);
                     logger.report(urlInfo.getUrl(), urlInfo.getCode());
                 } catch (InterruptedException | ExecutionException ex) {
+                    throw new ThreadsException("Catch exception during read list of HttpCodes futures");
                 }
             }
         } catch (IOException ex) {
-            throw new ReportException("Error with report streams");
+            throw new ReportException("Catch close stream exception during report");
         }
     }
 }

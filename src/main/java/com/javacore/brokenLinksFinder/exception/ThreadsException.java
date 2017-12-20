@@ -1,9 +1,9 @@
 package com.javacore.brokenLinksFinder.exception;
 
-public class ThreadPoolException extends FinderException {
-    private final static String MESSAGE_TITLE = "ThreadPoolException: ";
+public class ThreadsException extends FinderException {
+    private final static String MESSAGE_TITLE = "ThreadsException: ";
 
-    public ThreadPoolException(String message) {
+    public ThreadsException(String message) {
         super(message);
     }
 
