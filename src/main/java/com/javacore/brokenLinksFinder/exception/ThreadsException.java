@@ -7,6 +7,10 @@ public class ThreadsException extends FinderException {
         super(message);
     }
 
+    public ThreadsException(Exception ex, String message) {
+        super(ex, message);
+    }
+
     @Override
     public String getMessage() {
         return MESSAGE_TITLE + super.getMessage();

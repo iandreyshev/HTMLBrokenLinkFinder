@@ -12,7 +12,6 @@ class CommandParser {
     private static final String FLAG_EXPECTED = "Invalid argument '%s', flag expected";
     private static final String INVALID_ARG_FOR_FLAG = "Invalid argument '%s' for flag '%s'";
     private static final String DUPLICATE_ARGS = "Duplicate flag is not allowed";
-    private static final String ARGS_NOT_FOUND_FOR_FLAG = "Arguments for flag '%s' not found";
 
     private final HashMap<String, List<String>> flagArgs = new HashMap<>();
     private final HashMap<String, Pattern> flagRegex = new HashMap<>();

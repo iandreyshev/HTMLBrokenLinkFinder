@@ -2,7 +2,7 @@ package com.javacore.brokenLinksFinder.exception;
 
 public abstract class FinderException extends Exception {
     private Exception instance;
-    private String message;
+    private final String message;
 
     FinderException(final String message) {
         this.message = message;

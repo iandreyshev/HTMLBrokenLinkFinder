@@ -1,8 +1,8 @@
 package com.javacore.brokenLinksFinder;
 
 class HtmlUrlInfo {
-    private String fileName;
-    private String url;
+    private final String fileName;
+    private final String url;
     private int code;
 
     HtmlUrlInfo(final String filename, final String url) {

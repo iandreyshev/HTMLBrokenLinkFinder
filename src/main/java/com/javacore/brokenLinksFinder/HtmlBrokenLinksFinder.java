@@ -13,8 +13,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.regex.Pattern;
 
-import static com.javacore.brokenLinksFinder.logger.HtmlBrokenLinksFinderLogger.Message.*;
-
 public class HtmlBrokenLinksFinder {
     private static final String HTML_FILES_FLAG = "--files";
     private static final String REPORT_FILE_FLAG = "--out";
@@ -90,8 +88,7 @@ public class HtmlBrokenLinksFinder {
         try {
             callsResult = service.invokeAll(calls);
         } catch (InterruptedException ex) {
-            logger.message(ERROR_THREADS_WORK);
-            ex.printStackTrace();
+            throw new ThreadsException(ex, "Catch InterruptedException during invoke HttpCode calls");
         } finally {
             service.shutdown();
         }

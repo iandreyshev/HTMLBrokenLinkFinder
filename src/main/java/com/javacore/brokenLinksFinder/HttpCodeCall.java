@@ -3,7 +3,7 @@ package com.javacore.brokenLinksFinder;
 import java.util.concurrent.Callable;
 
 class HttpCodeCall implements Callable<HtmlUrlInfo> {
-    private HtmlUrlInfo container;
+    private final HtmlUrlInfo container;
 
     HttpCodeCall(final String fileName, final String url) {
         this.container = new HtmlUrlInfo(fileName, url);
