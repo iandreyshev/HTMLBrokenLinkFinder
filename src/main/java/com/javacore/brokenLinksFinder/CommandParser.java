@@ -80,16 +80,16 @@ class CommandParser {
     public static class Builder implements javafx.util.Builder<CommandParser> {
         private final CommandParser parser = new CommandParser();
 
-        Builder addFlag(final String flag) throws IllegalArgumentException {
+        Builder addFlag(final String flag) throws CmdParserException {
             if (!FLAG_REGEX.matcher(flag).matches()) {
-                throw new IllegalArgumentException(INVALID_FLAG_FORMAT);
+                throw new CmdParserException(new IllegalArgumentException(INVALID_FLAG_FORMAT));
             }
             parser.flagArgs.put(flag, new ArrayList<>());
 
             return this;
         }
 
-        Builder addFlag(final String flag, Pattern argsRegex) throws IllegalArgumentException {
+        Builder addFlag(final String flag, Pattern argsRegex) throws CmdParserException {
             addFlag(flag);
             parser.flagRegex.put(flag, argsRegex);
 

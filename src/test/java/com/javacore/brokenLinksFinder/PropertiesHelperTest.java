@@ -14,6 +14,7 @@ public class PropertiesHelperTest {
 	private static final String PROPERTIES_NOT_EXISTING_FILE_NAME = "not_existing_file";
 	private static final String PROPERTIES_FILE_NAME = "config.properties";
 	private static final String THREADS_COUNT_KEY = "threadsCount";
+	private static final String INVALID_INTEGER_KEY = "invalidInteger";
 	private static final Integer THREADS_COUNT = 10;
 	private static final String IS_IT_KEY = "isIt";
 	private static final Boolean IS_IT = true;
@@ -40,5 +41,10 @@ public class PropertiesHelperTest {
 	@Test
 	public void getBoolean() {
 		assertEquals(IS_IT, propertiesHelper.getBoolean(IS_IT_KEY));
+	}
+
+	@Test
+	public void getIntegerReturnNullIfCanNotParseProperty() {
+		assertEquals(null, propertiesHelper.getInteger(INVALID_INTEGER_KEY));
 	}
 }

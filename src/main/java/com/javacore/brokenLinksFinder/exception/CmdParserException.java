@@ -1,14 +1,15 @@
 package com.javacore.brokenLinksFinder.exception;
 
 public class CmdParserException extends FinderException {
-    private final static String MESSAGE_TITLE = "CmdParserException: ";
-
-    public CmdParserException(String message) {
+    public CmdParserException(final String message) {
         super(message);
+    }
+    public CmdParserException(final Exception ex) {
+        super(ex);
     }
 
     @Override
-    public String getMessage() {
-        return MESSAGE_TITLE + super.getMessage();
+    protected String getMessageTitle() {
+        return getClass().getSimpleName();
     }
 }

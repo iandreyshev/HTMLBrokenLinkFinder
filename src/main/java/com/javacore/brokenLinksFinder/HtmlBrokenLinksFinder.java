@@ -88,7 +88,7 @@ public class HtmlBrokenLinksFinder {
         try {
             callsResult = service.invokeAll(calls);
         } catch (InterruptedException ex) {
-            throw new ThreadsException(ex, "Catch InterruptedException during invoke HttpCode calls");
+            throw new ThreadsException("Catch InterruptedException during invoke HttpCode calls");
         } finally {
             service.shutdown();
         }

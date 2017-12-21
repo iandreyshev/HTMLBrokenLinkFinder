@@ -18,7 +18,7 @@ public class CommandParserTest {
     private CommandParser validWithOneFlagAndNumberPattern;
 
     @Before
-    public void updateParser() {
+    public void updateParser() throws CmdParserException {
         validWithOneFlag = new CommandParser.Builder()
                 .addFlag(validFlagOne)
                 .build();
@@ -110,15 +110,23 @@ public class CommandParserTest {
     }
 
     @Test (expected = CmdParserException.class)
-    public void failedToParseArgsWithoutFirstFlag() throws CmdParserException {
+    public void throwExceptionIfParseArgsWithoutFlagAtFirstPosition() throws CmdParserException {
         final String[] args = { "arg1", "arg2", "arg3" };
         validWithOneFlag.parse(args);
     }
 
-    @Test (expected = IllegalArgumentException.class)
-    public void catchExceptionWhenTryAddFlagWithInvalidFormat() {
-        CommandParser parser = new CommandParser.Builder()
+    @Test (expected = CmdParserException.class)
+    public void throwExceptionIfTryAddFlagWithInvalidFormat() throws CmdParserException {
+        new CommandParser.Builder()
                 .addFlag(invalidFlag)
                 .build();
+    }
+
+    @Test (expected = CmdParserException.class)
+    public void throwExceptionIfParseWithoutFlags() throws CmdParserException {
+        final String[] args = { "arg1", "arg2", "arg3" };
+        final CommandParser parser = new CommandParser.Builder()
+                .build();
+        parser.parse(args);
     }
 }

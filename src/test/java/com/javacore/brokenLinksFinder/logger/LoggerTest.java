@@ -58,6 +58,7 @@ public class LoggerTest {
 
     @Test
     public void notCrashIfStreamIsNull() {
+        logger.setErrorStream(errorStream);
         logger.setStream(null);
 
         try {

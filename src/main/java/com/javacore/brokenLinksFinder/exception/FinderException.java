@@ -1,15 +1,17 @@
 package com.javacore.brokenLinksFinder.exception;
 
 public abstract class FinderException extends Exception {
+    private final static String TITLE_PATTERN = "%s: %s";
+
     private Exception instance;
     private final String message;
 
-    FinderException(final String message) {
+    public FinderException(final String message) {
         this.message = message;
     }
-    FinderException(final Exception instance, final String message) {
+    public FinderException(final Exception instance) {
         this.instance = instance;
-        this.message = message;
+        this.message = instance.getMessage();
     }
 
     public Exception getInstance() {
@@ -17,8 +19,9 @@ public abstract class FinderException extends Exception {
     }
 
     @Override
-    public String getMessage() {
-        return message;
+    public final String getMessage() {
+        return String.format(TITLE_PATTERN, getMessageTitle(), message);
     }
-}
 
+    protected abstract String getMessageTitle();
+}
