@@ -7,6 +7,10 @@ final class HttpCodeHandler {
     private int responseErrorCode;
 
     int getCode(final String urlString) {
+        if (urlString == null) {
+            return invalidUrlCode;
+        }
+
         final OkHttpClient client = new OkHttpClient();
         final HttpUrl url = HttpUrl.parse(urlString);
 

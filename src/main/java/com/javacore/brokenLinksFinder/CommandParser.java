@@ -1,5 +1,7 @@
 package com.javacore.brokenLinksFinder;
 
+import com.javacore.brokenLinksFinder.exception.CmdParserException;
+
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -7,44 +9,29 @@ class CommandParser {
     private static final Pattern FLAG_REGEX = Pattern.compile("--[a-zA-Z]+");
     private static final String FLAGS_NOT_ASSIGNED = "Flags not assigned";
     private static final String INVALID_FLAG_FORMAT = "Invalid flag format";
-    private static final String EMPTY_ARGS_ARRAY = "Arguments array is empty";
     private static final String FLAG_EXPECTED = "Invalid argument '%s', flag expected";
     private static final String INVALID_ARG_FOR_FLAG = "Invalid argument '%s' for flag '%s'";
     private static final String DUPLICATE_ARGS = "Duplicate flag is not allowed";
-    private static final String ARGS_NOT_FOUND_FOR_FLAG = "Arguments for flag '%s' not found";
 
     private final HashMap<String, List<String>> flagArgs = new HashMap<>();
     private final HashMap<String, Pattern> flagRegex = new HashMap<>();
-    private String errorMessage;
-    private boolean isSuccess;
 
-    String getErrorMessage() {
-        return errorMessage;
-    }
-
-    CommandParser parse(final String[] args) throws IllegalStateException {
+    void parse(final String[] args) throws CmdParserException {
         if (flagArgs.isEmpty()) {
-            throw new IllegalStateException(FLAGS_NOT_ASSIGNED);
+            throw new CmdParserException(FLAGS_NOT_ASSIGNED);
         }
 
         cleanup();
-        errorMessage = EMPTY_ARGS_ARRAY;
-        isSuccess = args.length > 0 && enterParse(args);
-
-        return this;
+        enterParse(args);
     }
 
     List<String> getArgsForFlag(final String flag) {
         return flagArgs.getOrDefault(flag, new ArrayList<>());
     }
 
-    boolean isSuccess() {
-        return isSuccess;
-    }
-
     private CommandParser() {}
 
-    private boolean enterParse(final String[] args) {
+    private void enterParse(final String[] args) throws CmdParserException {
         HashSet<String> passedFlags = new HashSet<>();
         int pos = 0;
 
@@ -52,11 +39,9 @@ class CommandParser {
             final String flag = args[pos];
 
             if (!isFlag(flag)) {
-                errorMessage = String.format(FLAG_EXPECTED, flag);
-                return false;
+                throw new CmdParserException(String.format(FLAG_EXPECTED, flag));
             } else if (passedFlags.contains(flag)) {
-                errorMessage = DUPLICATE_ARGS;
-                return false;
+                throw new CmdParserException(DUPLICATE_ARGS);
             }
 
             passedFlags.add(flag);
@@ -69,21 +54,13 @@ class CommandParser {
                 if (isFlag(arg)) {
                     break;
                 } else if (isRegexExist && !getRegex(flag).matcher(arg).matches()) {
-                    errorMessage = String.format(INVALID_ARG_FOR_FLAG, arg, flag);
-                    return false;
+                    throw new CmdParserException(String.format(INVALID_ARG_FOR_FLAG, arg, flag));
                 }
 
                 flagArgs.get(flag).add(arg);
                 ++pos;
             }
-
-            if (flagArgs.get(flag).size() < 1) {
-                errorMessage = String.format(ARGS_NOT_FOUND_FOR_FLAG, flag);
-                return false;
-            }
         }
-
-        return true;
     }
 
     private Pattern getRegex(final String flag) {
@@ -103,16 +80,16 @@ class CommandParser {
     public static class Builder implements javafx.util.Builder<CommandParser> {
         private final CommandParser parser = new CommandParser();
 
-        Builder addFlag(final String flag) throws IllegalArgumentException {
+        Builder addFlag(final String flag) throws CmdParserException {
             if (!FLAG_REGEX.matcher(flag).matches()) {
-                throw new IllegalArgumentException(INVALID_FLAG_FORMAT);
+                throw new CmdParserException(new IllegalArgumentException(INVALID_FLAG_FORMAT));
             }
             parser.flagArgs.put(flag, new ArrayList<>());
 
             return this;
         }
 
-        Builder addFlag(final String flag, Pattern argsRegex) throws IllegalArgumentException {
+        Builder addFlag(final String flag, Pattern argsRegex) throws CmdParserException {
             addFlag(flag);
             parser.flagRegex.put(flag, argsRegex);
 
