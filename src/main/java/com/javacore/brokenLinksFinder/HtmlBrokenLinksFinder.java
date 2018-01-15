@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 public class HtmlBrokenLinksFinder {
     private static final String HTML_FILES_FLAG = "--files";
     private static final String REPORT_FILE_FLAG = "--out";
-    private static final String PROPERTIES_FILE = "properties.cfg";
+    private static final String PROPERTIES_FILE = "src/main/resources/config.properties";
     private static final String THREADS_COUNT_KEY = "threadsCount";
     private static final String SHOW_LOG_KEY = "showLog";
     private static final Pattern HTML_FILE_PATTERN = Pattern.compile("(.+)[.](html)$");
